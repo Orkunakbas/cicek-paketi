@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { FaStar, FaHeart, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa'
 import Product from '@/components/product/Product'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
+import monsterra2Image from '@/images/urunler/monsterra-2.jpg'
+import monsterra3Image from '@/images/urunler/monsterra-3.jpg'
 
 const ProductDetail = () => {
   const router = useRouter()
@@ -27,8 +29,8 @@ const ProductDetail = () => {
     shippingDays: 2, // Kaç gün içinde kargoya verilir
     images: [
       monsterraImage,
-      monsterraImage,
-      monsterraImage,
+      monsterra2Image,
+      monsterra3Image,
       monsterraImage,
     ],
     description: "Monstera Deliciosa, büyük, parlak yeşil ve karakteristik delikli yapraklarıyla bilinen popüler bir iç mekan bitkisidir. Tropikal bir atmosfer yaratır ve bakımı oldukça kolaydır. Ev veya ofis ortamları için mükemmel bir seçimdir.",
@@ -193,7 +195,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Sağ Taraf - Bilgiler */}
-          <div className="space-y-4 lg:pl-8">
+          <div className="space-y-4 lg:pl-8 lg:max-w-[600px]">
             {/* Başlık ve Değerlendirme */}
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
