@@ -8,6 +8,7 @@ import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import Navbar from '@/components/menu/Navbar'
 import Topbar from "@/components/menu/Topbar";
+import Footer from '@/components/footer/Footer'
 
 // AppContent'i düzeltelim
 function AppContent({ Component, pageProps }) {
@@ -16,6 +17,7 @@ function AppContent({ Component, pageProps }) {
       <Topbar/>
       <Navbar />
       <Component {...pageProps} />
+      <Footer />
     </>
   )
 }

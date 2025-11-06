@@ -108,7 +108,7 @@ const Navbar = () => {
               <div className="flex items-center space-x-8">
               {/* Çiçek Türleri */}
               <div className="relative group">
-                <button className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+                <button className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center space-x-1 px-4 py-2 rounded-full transition-all duration-300">
                   <span>Çiçek Türleri</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -126,7 +126,7 @@ const Navbar = () => {
 
               {/* Özel Günler */}
               <div className="relative group">
-                <button className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+                <button className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center space-x-1 px-4 py-2 rounded-full transition-all duration-300">
                   <span>Özel Günler</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -144,7 +144,7 @@ const Navbar = () => {
               
               {/* Bitkiler */}
               <div className="relative group">
-                <button className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+                <button className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center space-x-1 px-4 py-2 rounded-full transition-all duration-300">
                   <span>Bitkiler</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -160,12 +160,12 @@ const Navbar = () => {
               </div>
 
               {/* Tekli Linkler */}
-              <Link href="/premium-cicekler" className="text-gray-800 hover:text-[#eb1260] font-medium px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">Premium Çiçekler</Link>
-              <Link href="/saksilar" className="text-gray-800 hover:text-[#eb1260] font-medium px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">Saksılar</Link>
-              <Link href="/bitki-bakim-malzemeleri" className="text-gray-800 hover:text-[#eb1260] font-medium px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">Bitki Bakım Malzemeleri</Link>
+              <Link href="/premium-cicekler" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300">Premium Çiçekler</Link>
+              <Link href="/saksilar" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300">Saksılar</Link>
+              <Link href="/bitki-bakim-malzemeleri" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300">Bitki Bakım Malzemeleri</Link>
               
               {/* Yılbaşı Koleksiyonu - Özel İkon ile */}
-              <Link href="/yilbasi-koleksiyonu" className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center gap-1.5 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+              <Link href="/yilbasi-koleksiyonu" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-green-600">
                   <path d="M12 3 L6 9 L8 9 L4 15 L7 15 L3 21 L12 21 L21 21 L17 15 L20 15 L16 9 L18 9 Z" fill="#15803d" stroke="#15803d"/>
                   <rect x="10.5" y="21" width="3" height="2" fill="#78350f" stroke="none"/>

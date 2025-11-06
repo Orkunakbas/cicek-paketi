@@ -74,7 +74,7 @@ const Index = () => {
 
         {/* Ürün Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {Array.from({ length: 20 }).map((_, index) => (
+          {Array.from({ length: 12 }).map((_, index) => (
             <Product
               key={index}
               id={index + 1}
@@ -83,7 +83,7 @@ const Index = () => {
               fiyat={450}
               indirimli_fiyat={349}
               kapak={monsterraImage}
-              url={`/bitkiler/monstera-deliciosa-${index + 1}`}
+              url={`/cicek/monstera-deliciosa-${index + 1}`}
               tag={["monstera", "tropik", "iç mekan"]}
             />
           ))}
