@@ -201,7 +201,7 @@ const ProductDetail = () => {
             )}
 
             {/* Miktar ve Sepete Ekle */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex gap-4">
               {/* Miktar */}
               <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                 <button
