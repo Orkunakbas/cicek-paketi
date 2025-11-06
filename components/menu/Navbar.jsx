@@ -312,11 +312,7 @@ const Navbar = () => {
               {/* Yılbaşı Koleksiyonu - Özel İkon ile */}
               <div className="border-b border-gray-100 pb-4 pt-4">
                 <Link href="/yilbasi-koleksiyonu" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-green-600">
-                    <path d="M12 3 L6 9 L8 9 L4 15 L7 15 L3 21 L12 21 L21 21 L17 15 L20 15 L16 9 L18 9 Z" fill="#15803d" stroke="#15803d"/>
-                    <rect x="10.5" y="21" width="3" height="2" fill="#78350f" stroke="none"/>
-                    <circle cx="12" cy="2" r="1.5" fill="#fbbf24" stroke="none"/>
-                  </svg>
+                  <TbChristmasTreeFilled className="w-5 h-5 text-green-600" />
                   <span>Yılbaşı Koleksiyonu</span>
                 </Link>
               </div>
