@@ -18,9 +18,7 @@ const HomeStory = () => {
   const setVideoRef = (id, el) => {
     if (el) {
       videoRefs.current[id] = el
-      // Mobil için ilk frame'i yükle
-      el.load()
-      el.currentTime = 0.1
+      console.log('Video ref set:', id, el)
     }
   }
 
@@ -31,12 +29,13 @@ const HomeStory = () => {
     { id: 4, src: '/videos/4.mp4', title: 'Sulama İpuçları' }
   ]
 
-  const handlePlayPause = (videoId) => {
-    const video = videoRefs.current[videoId]
-    console.log('handlePlayPause called', videoId, video)
+  const handlePlayPause = (videoId, isMobile = false) => {
+    const refKey = isMobile ? `mobile-${videoId}` : `desktop-${videoId}`
+    const video = videoRefs.current[refKey]
+    console.log('handlePlayPause called', videoId, refKey, video, videoRefs.current)
     
     if (!video) {
-      console.log('Video not found!', videoId)
+      console.log('Video not found!', refKey)
       return
     }
 
@@ -46,9 +45,9 @@ const HomeStory = () => {
       setLoadingVideos(prev => ({ ...prev, [videoId]: false }))
     } else {
       // Diğer videoları durdur
-      Object.keys(videoRefs.current).forEach(id => {
-        if (videoRefs.current[id] && id !== videoId.toString()) {
-          videoRefs.current[id].pause()
+      Object.keys(videoRefs.current).forEach(key => {
+        if (videoRefs.current[key]) {
+          videoRefs.current[key].pause()
         }
       })
       setLoadingVideos(prev => ({ ...prev, [videoId]: true }))
@@ -101,22 +100,19 @@ const HomeStory = () => {
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-900 shadow-lg hover:shadow-2xl transition-all duration-300">
               <video
                 key={`video-desktop-${video.id}`}
-                ref={(el) => setVideoRef(video.id, el)}
+                ref={(el) => setVideoRef(`desktop-${video.id}`, el)}
                 src={video.src}
                 loop
                 muted={mutedVideos[video.id]}
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="w-full h-full object-cover"
-                onClick={() => handlePlayPause(video.id)}
-                onLoadedData={(e) => {
-                  e.target.currentTime = 0.1
-                }}
+                onClick={() => handlePlayPause(video.id, false)}
               />
 
               {/* Play/Pause Button */}
               <button
-                onClick={() => handlePlayPause(video.id)}
+                onClick={() => handlePlayPause(video.id, false)}
                 className="absolute inset-0 flex items-center justify-center group/play"
               >
                 <div className="relative w-16 h-16 rounded-full flex items-center justify-center">
@@ -172,22 +168,19 @@ const HomeStory = () => {
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-900 shadow-lg">
                   <video
                     key={`video-mobile-${video.id}`}
-                    ref={(el) => setVideoRef(video.id, el)}
+                    ref={(el) => setVideoRef(`mobile-${video.id}`, el)}
                     src={video.src}
                     loop
                     muted={mutedVideos[video.id]}
                     playsInline
-                    preload="auto"
+                    preload="metadata"
                     className="w-full h-full object-cover"
-                    onClick={() => handlePlayPause(video.id)}
-                    onLoadedData={(e) => {
-                      e.target.currentTime = 0.1
-                    }}
+                    onClick={() => handlePlayPause(video.id, true)}
                   />
 
                   {/* Play/Pause Button */}
                   <button
-                    onClick={() => handlePlayPause(video.id)}
+                    onClick={() => handlePlayPause(video.id, true)}
                     className="absolute inset-0 flex items-center justify-center group/play"
                   >
                     <div className="relative w-16 h-16 rounded-full flex items-center justify-center">
