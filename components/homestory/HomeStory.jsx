@@ -165,7 +165,7 @@ const HomeStory = () => {
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-900 shadow-lg">
                   <video
                     key={`video-mobile-${video.id}`}
-                    ref={(el) => setVideoRef(`mobile-${video.id}`, el)}
+                    ref={(el) => setVideoRef(video.id, el)}
                     src={video.src}
                     loop
                     muted={mutedVideos[video.id]}
