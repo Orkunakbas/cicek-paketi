@@ -102,7 +102,7 @@ const Product = ({
                   {tag.slice(0, 3).map((t, index) => (
                     <span
                       key={index}
-                      className="text-xs px-2 py-1 bg-pink-50 text-[#eb1260] rounded-full whitespace-nowrap flex-shrink-0"
+                      className="text-xs px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full whitespace-nowrap flex-shrink-0"
                     >
                       {t}
                     </span>

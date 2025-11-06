@@ -1,8 +1,10 @@
 import Stories from '@/components/stories/Stories'
 import Banner from '@/components/banner/Banner'
 import Product from '@/components/product/Product'
+import HomeStory from '@/components/homestory/HomeStory'
 import SeoDescription from '@/components/seodescription/SeoDescription'
 import React from 'react'
+import { FaSeedling } from 'react-icons/fa'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 
 const Index = () => {
@@ -62,14 +64,12 @@ const Index = () => {
       {/* Ürünler Bölümü */}
       <div className="max-w-[1650px] mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Başlık */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-[#eb1260]"></div>
-            <span className="text-sm font-medium text-[#eb1260] uppercase tracking-wider">En Çok Tercih Edilenler</span>
-            <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-[#eb1260]"></div>
+        <div className="mb-6 flex items-center gap-3">
+          <FaSeedling className="text-3xl md:text-4xl text-emerald-600" />
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Popüler Ürünler</h2>
+            <p className="text-sm text-gray-600">Müşterilerimizin en çok beğendiği ve tercih ettiği taze çiçek ve bitkilerimizi keşfedin</p>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Popüler Ürünler</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">Müşterilerimizin en çok beğendiği ve tercih ettiği taze çiçek ve bitkilerimizi keşfedin</p>
         </div>
 
         {/* Ürün Grid */}
@@ -89,6 +89,9 @@ const Index = () => {
           ))}
         </div>
       </div>
+
+      {/* Video Bölümü */}
+      <HomeStory />
 
       {/* SEO Açıklama Bölümü */}
       <SeoDescription />
