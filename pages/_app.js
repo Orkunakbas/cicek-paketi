@@ -7,14 +7,12 @@ import { store } from '@/store/store'
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import Navbar from '@/components/menu/Navbar'
-import Topbar from "@/components/menu/Topbar";
 import Footer from '@/components/footer/Footer'
 
 // AppContent'i düzeltelim
 function AppContent({ Component, pageProps }) {
   return (
     <>
-      <Topbar/>
       <Navbar />
       <Component {...pageProps} />
       <Footer />

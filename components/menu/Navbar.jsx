@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { TbChristmasTreeFilled } from 'react-icons/tb'
 import darkLogo from '@/images/dark-logo.png'
 import Cart from '@/components/cart/Cart'
 import Search from '@/components/menu/Search'
@@ -39,10 +40,10 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-[1650px] w-full mx-auto px-6">
+      <header className="sticky top-0 left-0 right-0 z-50 bg-white md:border-b border-gray-200">
+        <div className="max-w-[1650px] w-full mx-auto">
           {/* Üst Satır: Logo, Search, İkonlar */}
-          <div className="flex items-center h-20 gap-4">
+          <div className="flex items-center h-20 gap-4 px-6">
             {/* Hamburger Menu Button (sadece mobilde - solda) */}
             <button 
               className="md:hidden text-[#230060] focus:outline-none flex-shrink-0"
@@ -68,8 +69,10 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* Desktop Search Bar (ortada) */}
-            <Search />
+            {/* Desktop Search Bar (ortada) - sadece desktop'ta göster */}
+            <div className="hidden md:flex flex-1 max-w-2xl">
+              <Search />
+            </div>
 
             {/* Sağ taraf: Sepet & Giriş/Kayıt ikonu */}
             <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
@@ -102,8 +105,28 @@ const Navbar = () => {
             </div>
           </div>
 
+          {/* Mobil Search Bar (navbar'ın altında tam genişlik) */}
+          <div className="md:hidden border-t border-b border-gray-200 px-6 py-3">
+            <form onSubmit={(e) => { e.preventDefault(); console.log('Arama yapıldı'); }} className="relative w-full">
+              <input
+                type="text"
+                placeholder="Çiçek, bitki veya ürün ara..."
+                className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-full focus:outline-none focus:border-[#eb1260] focus:ring-2 focus:ring-[#eb1260]/20 transition-all text-sm"
+              />
+              <button 
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#eb1260] text-white rounded-full flex items-center justify-center hover:bg-[#d10f54] transition-colors"
+                aria-label="Ara"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </button>
+            </form>
+          </div>
+
           {/* Alt Satır: Desktop Menüler (sadece masaüstünde) */}
-          <div className="hidden md:flex items-center h-14 border-t border-gray-100">
+          <div className="hidden md:flex items-center h-14 border-t border-gray-100 px-6">
             <div className="flex items-center space-x-8 flex-1">
               <div className="flex items-center space-x-8">
               {/* Çiçek Türleri */}
@@ -166,11 +189,7 @@ const Navbar = () => {
               
               {/* Yılbaşı Koleksiyonu - Özel İkon ile */}
               <Link href="/yilbasi-koleksiyonu" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-green-600">
-                  <path d="M12 3 L6 9 L8 9 L4 15 L7 15 L3 21 L12 21 L21 21 L17 15 L20 15 L16 9 L18 9 Z" fill="#15803d" stroke="#15803d"/>
-                  <rect x="10.5" y="21" width="3" height="2" fill="#78350f" stroke="none"/>
-                  <circle cx="12" cy="2" r="1.5" fill="#fbbf24" stroke="none"/>
-                </svg>
+                <TbChristmasTreeFilled className="w-4 h-4 text-green-600" />
                 <span>Yılbaşı Koleksiyonu</span>
               </Link>
               </div>
@@ -211,87 +230,96 @@ const Navbar = () => {
             </div>
 
             {/* Mobil Menü Öğeleri */}
-            <nav className="space-y-6 divide-y divide-gray-100">
+            <nav className="space-y-1">
               {/* Çiçek Türleri */}
-              <div>
+              <div className="border-b border-gray-100 pb-4">
                 <button
                   onClick={() => toggleSubmenu('types')}
                   aria-expanded={activeSubmenu === 'types'}
-                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50"
+                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50"
                 >
                   <span>Çiçek Türleri</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'types' ? 'rotate-180' : ''}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`mt-2 pl-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'types' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
-                  <Link href="/cicek-turleri/guller" className="block text-gray-600 hover:text-[#eb1260]">Güller</Link>
-                  <Link href="/cicek-turleri/orkideler" className="block text-gray-600 hover:text-[#eb1260]">Orkideler</Link>
-                  <Link href="/cicek-turleri/papatyalar" className="block text-gray-600 hover:text-[#eb1260]">Papatyalar</Link>
-                  <Link href="/cicek-turleri/buketler" className="block text-gray-600 hover:text-[#eb1260]">Buketler</Link>
-                  <Link href="/cicek-turleri/aranjmanlar" className="block text-gray-600 hover:text-[#eb1260]">Aranjmanlar</Link>
-                  <Link href="/cicek-turleri/saksi-cicekleri" className="block text-gray-600 hover:text-[#eb1260]">Saksı Çiçekleri</Link>
+                <div className={`mt-2 pl-4 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'types' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
+                  <Link href="/cicek-turleri/guller" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Güller</Link>
+                  <Link href="/cicek-turleri/orkideler" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Orkideler</Link>
+                  <Link href="/cicek-turleri/papatyalar" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Papatyalar</Link>
+                  <Link href="/cicek-turleri/buketler" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Buketler</Link>
+                  <Link href="/cicek-turleri/aranjmanlar" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Aranjmanlar</Link>
+                  <Link href="/cicek-turleri/saksi-cicekleri" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Saksı Çiçekleri</Link>
                 </div>
               </div>
 
               {/* Özel Günler */}
-              <div>
+              <div className="border-b border-gray-100 pb-4 pt-4">
                 <button
                   onClick={() => toggleSubmenu('occasions')}
                   aria-expanded={activeSubmenu === 'occasions'}
-                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50"
+                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50"
                 >
                   <span>Özel Günler</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'occasions' ? 'rotate-180' : ''}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`mt-2 pl-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'occasions' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
-                  <Link href="/ozel-gunler/dogum-gunu" className="block text-gray-600 hover:text-[#eb1260]">Doğum Günü</Link>
-                  <Link href="/ozel-gunler/yildonumu" className="block text-gray-600 hover:text-[#eb1260]">Yıldönümü</Link>
-                  <Link href="/ozel-gunler/sevgililer-gunu" className="block text-gray-600 hover:text-[#eb1260]">Sevgililer Günü</Link>
-                  <Link href="/ozel-gunler/anneler-gunu" className="block text-gray-600 hover:text-[#eb1260]">Anneler Günü</Link>
-                  <Link href="/ozel-gunler/gecmis-olsun" className="block text-gray-600 hover:text-[#eb1260]">Geçmiş Olsun</Link>
-                  <Link href="/ozel-gunler/taziye" className="block text-gray-600 hover:text-[#eb1260]">Taziye</Link>
+                <div className={`mt-2 pl-4 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'occasions' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
+                  <Link href="/ozel-gunler/dogum-gunu" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Doğum Günü</Link>
+                  <Link href="/ozel-gunler/yildonumu" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Yıldönümü</Link>
+                  <Link href="/ozel-gunler/sevgililer-gunu" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Sevgililer Günü</Link>
+                  <Link href="/ozel-gunler/anneler-gunu" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Anneler Günü</Link>
+                  <Link href="/ozel-gunler/gecmis-olsun" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Geçmiş Olsun</Link>
+                  <Link href="/ozel-gunler/taziye" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Taziye</Link>
                 </div>
               </div>
               
               {/* Bitkiler */}
-              <div>
+              <div className="border-b border-gray-100 pb-4 pt-4">
                 <button
                   onClick={() => toggleSubmenu('plants')}
                   aria-expanded={activeSubmenu === 'plants'}
-                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50"
+                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50"
                 >
                   <span>Bitkiler</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'plants' ? 'rotate-180' : ''}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`mt-2 pl-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'plants' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
-                  <Link href="/bitkiler/sukulentler" className="block text-gray-600 hover:text-[#eb1260]">Sukulentler</Link>
-                  <Link href="/bitkiler/kaktusler" className="block text-gray-600 hover:text-[#eb1260]">Kaktüsler</Link>
-                  <Link href="/bitkiler/ic-mekan" className="block text-gray-600 hover:text-[#eb1260]">İç Mekan Bitkileri</Link>
-                  <Link href="/bitkiler/ofis-bitkileri" className="block text-gray-600 hover:text-[#eb1260]">Ofis Bitkileri</Link>
-                  <Link href="/bitkiler/bakimi-kolay" className="block text-gray-600 hover:text-[#eb1260]">Bakımı Kolay</Link>
+                <div className={`mt-2 pl-4 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'plants' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
+                  <Link href="/bitkiler/sukulentler" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Sukulentler</Link>
+                  <Link href="/bitkiler/kaktusler" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Kaktüsler</Link>
+                  <Link href="/bitkiler/ic-mekan" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">İç Mekan Bitkileri</Link>
+                  <Link href="/bitkiler/ofis-bitkileri" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Ofis Bitkileri</Link>
+                  <Link href="/bitkiler/bakimi-kolay" onClick={() => setIsMenuOpen(false)} className="block text-gray-600 hover:text-[#eb1260] px-3 py-2 rounded-md hover:bg-pink-50">Bakımı Kolay</Link>
                 </div>
               </div>
 
               {/* Tekli Linkler */}
-              <Link href="/premium-cicekler" className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50">Premium Çiçekler</Link>
-              <Link href="/saksilar" className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50">Saksılar</Link>
-              <Link href="/bitki-bakim-malzemeleri" className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50">Bitki Bakım Malzemeleri</Link>
+              <div className="border-b border-gray-100 pb-4 pt-4">
+                <Link href="/premium-cicekler" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50">Premium Çiçekler</Link>
+              </div>
+              
+              <div className="border-b border-gray-100 pb-4 pt-4">
+                <Link href="/saksilar" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50">Saksılar</Link>
+              </div>
+              
+              <div className="border-b border-gray-100 pb-4 pt-4">
+                <Link href="/bitki-bakim-malzemeleri" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50">Bitki Bakım Malzemeleri</Link>
+              </div>
               
               {/* Yılbaşı Koleksiyonu - Özel İkon ile */}
-              <Link href="/yilbasi-koleksiyonu" className="flex items-center gap-2 text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-green-600">
-                  <path d="M12 3 L6 9 L8 9 L4 15 L7 15 L3 21 L12 21 L21 21 L17 15 L20 15 L16 9 L18 9 Z" fill="#15803d" stroke="#15803d"/>
-                  <rect x="10.5" y="21" width="3" height="2" fill="#78350f" stroke="none"/>
-                  <circle cx="12" cy="2" r="1.5" fill="#fbbf24" stroke="none"/>
-                </svg>
-                <span>Yılbaşı Koleksiyonu</span>
-              </Link>
-              
+              <div className="border-b border-gray-100 pb-4 pt-4">
+                <Link href="/yilbasi-koleksiyonu" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-3 py-3 rounded-md hover:bg-pink-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-green-600">
+                    <path d="M12 3 L6 9 L8 9 L4 15 L7 15 L3 21 L12 21 L21 21 L17 15 L20 15 L16 9 L18 9 Z" fill="#15803d" stroke="#15803d"/>
+                    <rect x="10.5" y="21" width="3" height="2" fill="#78350f" stroke="none"/>
+                    <circle cx="12" cy="2" r="1.5" fill="#fbbf24" stroke="none"/>
+                  </svg>
+                  <span>Yılbaşı Koleksiyonu</span>
+                </Link>
+              </div>
               
             </nav>
 
@@ -299,8 +327,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Spacer div to prevent content from going under navbar */}
-      <div className="h-20 md:h-[136px]"></div>
 
       {/* Sepet Drawer */}
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
