@@ -29,15 +29,15 @@ const Register = ({ onClose }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Başlık */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Hesap Oluştur</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">Hesap Oluştur</h2>
         <p className="text-gray-600 text-sm">Hemen üye olun, avantajlardan yararlanın</p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         {/* Name */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -50,7 +50,7 @@ const Register = ({ onClose }) => {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="Adınız Soyadınız"
           />
         </div>
@@ -67,7 +67,7 @@ const Register = ({ onClose }) => {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="ornek@email.com"
           />
         </div>
@@ -85,7 +85,7 @@ const Register = ({ onClose }) => {
             onChange={handleChange}
             required
             minLength={6}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="En az 6 karakter"
           />
         </div>
@@ -102,7 +102,7 @@ const Register = ({ onClose }) => {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="Şifrenizi tekrar girin"
           />
         </div>

@@ -70,7 +70,7 @@ const ProductDetail = () => {
           {/* Sol Taraf - Görseller */}
           <div className="flex flex-col md:flex-row gap-4">
             {/* Küçük Görseller - Dikey */}
-            <div className="flex md:flex-col gap-3 order-2 md:order-1">
+            <div className="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto md:overflow-x-visible scrollbar-hide pb-2 md:pb-0">
               {product.images.map((image, index) => (
                 <button
                   key={index}
@@ -102,8 +102,9 @@ const ProductDetail = () => {
                 unoptimized
               />
               {product.discountedPrice && (
-                <div className="absolute top-4 left-4 bg-[#059669] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-10">
-                  %{discountPercentage} İndirim
+                <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-[#059669] text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-lg z-10">
+                  <span className="md:hidden">%{discountPercentage}</span>
+                  <span className="hidden md:inline">%{discountPercentage} İndirim</span>
                 </div>
               )}
               <button
@@ -276,6 +277,17 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Scrollbar gizleme CSS */}
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   )
 }

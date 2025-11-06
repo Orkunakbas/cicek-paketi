@@ -261,37 +261,34 @@ const DynamicPage = () => {
 
           {/* Güven Kartları */}
           <div className="mt-6 mb-6 bg-gradient-to-r from-pink-50 via-pink-100 to-pink-50 rounded-2xl p-4">
-            <div className="flex flex-wrap justify-center md:justify-around items-center gap-6">
+            <div className="grid grid-cols-3 gap-3 md:flex md:flex-wrap md:justify-around md:items-center md:gap-6">
               {/* Her Gün Aynı Gün Teslimat */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <FaTruck className="text-[#eb1260] text-xl" />
+              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                  <FaTruck className="text-[#eb1260] text-lg md:text-xl" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800 text-sm">Her Gün Aynı</p>
-                  <p className="font-semibold text-gray-800 text-sm">Gün Teslimat</p>
+                  <p className="font-semibold text-gray-800 text-xs md:text-sm leading-tight">Her Gün Aynı Gün Teslimat</p>
                 </div>
               </div>
 
               {/* Güvenli Alışveriş */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <FaLock className="text-[#eb1260] text-xl" />
+              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                  <FaLock className="text-[#eb1260] text-lg md:text-xl" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800 text-sm">Güvenli</p>
-                  <p className="font-semibold text-gray-800 text-sm">Alışveriş</p>
+                  <p className="font-semibold text-gray-800 text-xs md:text-sm leading-tight">Güvenli Alışveriş</p>
                 </div>
               </div>
 
               {/* Yüksek Müşteri Memnuniyeti */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <FaSmile className="text-[#eb1260] text-xl" />
+              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                  <FaSmile className="text-[#eb1260] text-lg md:text-xl" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800 text-sm">Yüksek Müşteri</p>
-                  <p className="font-semibold text-gray-800 text-sm">Memnuniyeti</p>
+                  <p className="font-semibold text-gray-800 text-xs md:text-sm leading-tight">Yüksek Müşteri Memnuniyeti</p>
                 </div>
               </div>
             </div>

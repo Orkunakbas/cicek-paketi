@@ -31,12 +31,13 @@ const Product = ({
           unoptimized
         />
         
-        {/* İndirim Badge */}
-        {indirimli_fiyat && (
-          <div className="absolute top-3 left-3 bg-[#059669] text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg z-10">
-            %{discountPercentage} İndirim
-          </div>
-        )}
+              {/* İndirim Badge */}
+              {indirimli_fiyat && (
+                <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#059669] text-white px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg z-10">
+                  <span className="md:hidden">%{discountPercentage}</span>
+                  <span className="hidden md:inline">%{discountPercentage} İndirim</span>
+                </div>
+              )}
 
         {/* Favori Butonu */}
         <button
@@ -95,25 +96,36 @@ const Product = ({
           )}
         </div>
 
-        {/* Etiketler */}
-        {tag && tag.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {tag.slice(0, 3).map((t, index) => (
-              <span 
-                key={index}
-                className="text-xs px-2 py-1 bg-pink-50 text-[#eb1260] rounded-full"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
+              {/* Etiketler */}
+              {tag && tag.length > 0 && (
+                <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide">
+                  {tag.slice(0, 3).map((t, index) => (
+                    <span
+                      key={index}
+                      className="text-xs px-2 py-1 bg-pink-50 text-[#eb1260] rounded-full whitespace-nowrap flex-shrink-0"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
       </div>
 
       {/* Yeni Ürün Badge (opsiyonel) */}
       {/* <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
         YENİ
       </div> */}
+
+      {/* Scrollbar gizleme CSS */}
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   )
 }

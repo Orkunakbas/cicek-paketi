@@ -18,7 +18,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div 
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative animate-fadeIn"
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col relative animate-fadeIn"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
@@ -33,7 +33,7 @@ const AuthModal = ({ isOpen, onClose }) => {
           </button>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200">
+          <div className="flex border-b border-gray-200 flex-shrink-0">
             <button
               onClick={() => setActiveTab('login')}
               className={`flex-1 py-4 text-center font-semibold transition-all duration-300 ${
@@ -56,8 +56,8 @@ const AuthModal = ({ isOpen, onClose }) => {
             </button>
           </div>
 
-          {/* Content */}
-          <div className="p-8">
+          {/* Content - Scrollable */}
+          <div className="p-6 md:p-8 overflow-y-auto">
             {activeTab === 'login' ? (
               <Login onClose={onClose} />
             ) : (
