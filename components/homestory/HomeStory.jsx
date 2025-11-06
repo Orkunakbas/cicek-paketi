@@ -103,6 +103,7 @@ const HomeStory = () => {
                 loop
                 muted={mutedVideos[video.id]}
                 playsInline
+                preload="metadata"
                 className="w-full h-full object-cover"
                 onClick={() => handlePlayPause(video.id)}
               />
@@ -170,6 +171,7 @@ const HomeStory = () => {
                     loop
                     muted={mutedVideos[video.id]}
                     playsInline
+                    preload="metadata"
                     className="w-full h-full object-cover"
                     onClick={() => handlePlayPause(video.id)}
                   />
