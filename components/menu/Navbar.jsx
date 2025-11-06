@@ -1,48 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Chip } from "@heroui/react"
-import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/router'
-import enFlag from '@/images/en.png'
-import trFlag from '@/images/tr.png'
-import srFlag from '@/images/sr.png'
 import darkLogo from '@/images/dark-logo.png'
+import Cart from '@/components/cart/Cart'
 
 const Navbar = () => {
-  const t = useTranslations('frontend.navbar')
-  const router = useRouter()
-  const { locale } = router
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
-  // Dil değişikliği işlemi
-  const handleLanguageChange = (newLocale) => {
-    router.push(router.asPath, router.asPath, { 
-      locale: newLocale,
-      scroll: false 
-    });
-  }
-
-  // Bayrak görüntüsünü seç
-  const getFlag = (lang) => {
-    switch(lang) {
-      case 'en': return enFlag;
-      case 'sr': return srFlag;
-      default: return trFlag;
-    }
-  }
+  // Dil kaldırıldı
 
   // Alt menü açma/kapama işlevi
   const toggleSubmenu = (menu) => {
     setActiveSubmenu(activeSubmenu === menu ? null : menu);
   }
 
-  // Sayfa değiştiğinde menüyü kapat
+  // Sayfa değiştiğinde menüyü kapat (router kaldırıldığı için sadece menü kapatma mantığı bırakıldı)
   useEffect(() => {
     setIsMenuOpen(false);
     setActiveSubmenu(null);
-  }, [router.asPath]);
+  }, []);
 
   // Body scroll kilidi
   useEffect(() => {
@@ -60,10 +38,10 @@ const Navbar = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
         <div className="max-w-[1600px] w-full mx-auto px-6">
-          <div className="flex justify-between items-center h-20">
-            {/* Hamburger Menu Button (sadece mobilde) */}
+          <div className="flex items-center h-20 gap-4">
+            {/* Hamburger Menu Button (sadece mobilde - solda) */}
             <button 
-              className="md:hidden text-[#230060] focus:outline-none"
+              className="md:hidden text-[#230060] focus:outline-none flex-shrink-0"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Menu"
             >
@@ -72,189 +50,109 @@ const Navbar = () => {
               </svg>
             </button>
 
-            {/* Logo (solda) */}
-            <div className="flex justify-start items-center">
-              <Link href="/" locale={locale}>
+            {/* Logo (mobilde ortada, masaüstünde solda) */}
+            <div className="flex justify-center md:justify-start items-center flex-1 md:flex-initial">
+              <Link href="/">
                 <Image
                   src={darkLogo}
                   alt="Logo"
-                  width={120}
-                  height={40}
+                  width={180}
+                  height={60}
                   priority
-                  className="h-auto"
+                  className="h-auto w-28 md:w-44"
                 />
               </Link>
             </div>
 
             {/* Desktop Menüler (ortada) */}
             <div className="hidden md:flex flex-1 justify-center items-center space-x-8">
-              {/* Balkan Turları */}
+              {/* Çiçek Türleri */}
               <div className="relative group">
-                <button className="text-gray-700 hover:text-amber-800 font-medium flex items-center space-x-1">
-                  <span>{t('balkanTours')}</span>
+                <button className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+                  <span>Çiçek Türleri</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className="absolute left-0 mt-2 w-56 origin-top-left transform scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out bg-white shadow-lg rounded-md p-2 z-50">
-                  <Link
-                    href="/balkan-tours/daily-tours"
-                    locale={locale}
-                    className="block px-4 py-2 text-gray-700 hover:bg-amber-50 hover:text-amber-800 rounded-md"
-                  >
-                    {t('oneDayTours')}
-                  </Link>
-                  <Link
-                    href="/balkan-tours/multi-day-tours"
-                    locale={locale}
-                    className="block px-4 py-2 text-gray-700 hover:bg-amber-50 hover:text-amber-800 rounded-md"
-                  >
-                    {t('multiDayTours')}
-                  </Link>
+                <div className="absolute left-0 mt-3 w-64 opacity-0 translate-y-1 invisible group-hover:translate-y-0 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out bg-white border border-gray-100 shadow-lg rounded-lg p-3 z-50">
+                  <Link href="/cicek-turleri/guller" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Güller</Link>
+                  <Link href="/cicek-turleri/orkideler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Orkideler</Link>
+                  <Link href="/cicek-turleri/papatyalar" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Papatyalar</Link>
+                  <Link href="/cicek-turleri/buketler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Buketler</Link>
+                  <Link href="/cicek-turleri/aranjmanlar" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Aranjmanlar</Link>
+                  <Link href="/cicek-turleri/saksi-cicekleri" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Saksı Çiçekleri</Link>
                 </div>
               </div>
-              
-              {/* Sırbistan Turları */}
+
+              {/* Özel Günler */}
               <div className="relative group">
-                <button className="text-gray-700 hover:text-amber-800 font-medium flex items-center space-x-1">
-                  <span>{t('serbiaTours')}</span>
+                <button className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+                  <span>Özel Günler</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className="absolute left-0 mt-2 w-56 origin-top-left transform scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out bg-white shadow-lg rounded-md p-2 z-50">
-                  <Link
-                    href="/serbia-tours/daily-tours"
-                    locale={locale}
-                    className="block px-4 py-2 text-gray-700 hover:bg-amber-50 hover:text-amber-800 rounded-md"
-                  >
-                    {t('oneDayTours')}
-                  </Link>
-                  <Link
-                    href="/serbia-tours/multi-day-tours"
-                    locale={locale}
-                    className="block px-4 py-2 text-gray-700 hover:bg-amber-50 hover:text-amber-800 rounded-md"
-                  >
-                    {t('multiDayTours')}
-                  </Link>
+                <div className="absolute left-0 mt-3 w-64 opacity-0 translate-y-1 invisible group-hover:translate-y-0 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out bg-white border border-gray-100 shadow-lg rounded-lg p-3 z-50">
+                  <Link href="/ozel-gunler/dogum-gunu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Doğum Günü</Link>
+                  <Link href="/ozel-gunler/yildonumu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Yıldönümü</Link>
+                  <Link href="/ozel-gunler/sevgililer-gunu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Sevgililer Günü</Link>
+                  <Link href="/ozel-gunler/anneler-gunu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Anneler Günü</Link>
+                  <Link href="/ozel-gunler/gecmis-olsun" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Geçmiş Olsun</Link>
+                  <Link href="/ozel-gunler/taziye" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Taziye</Link>
                 </div>
               </div>
               
-              {/* Yat Turları */}
+              {/* Bitkiler */}
               <div className="relative group">
-                <button className="text-gray-700 hover:text-amber-800 font-medium flex items-center space-x-1">
-                  <span>{t('yachtTours')}</span>
-                  <Chip className="ml-1 bg-amber-100 text-amber-800 text-xs font-semibold py-0.5 px-1.5" size="sm">{t('new')}</Chip>
+                <button className="text-gray-800 hover:text-[#eb1260] font-medium flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">
+                  <span>Bitkiler</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className="absolute left-0 mt-2 w-56 origin-top-left transform scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out bg-white shadow-lg rounded-md p-2 z-50">
-                  <Link
-                    href="/yacht-tours/turkey"
-                    locale={locale}
-                    className="block px-4 py-2 text-gray-700 hover:bg-amber-50 hover:text-amber-800 rounded-md"
-                  >
-                    {t('turkeyYachtTours')}
-                  </Link>
-                  <Link
-                    href="/yacht-tours/croatia"
-                    locale={locale}
-                    className="block px-4 py-2 text-gray-700 hover:bg-amber-50 hover:text-amber-800 rounded-md"
-                  >
-                    {t('croatiaYachtTours')}
-                  </Link>
+                <div className="absolute left-0 mt-3 w-64 opacity-0 translate-y-1 invisible group-hover:translate-y-0 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out bg-white border border-gray-100 shadow-lg rounded-lg p-3 z-50">
+                  <Link href="/bitkiler/sukulentler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Sukulentler</Link>
+                  <Link href="/bitkiler/kaktusler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Kaktüsler</Link>
+                  <Link href="/bitkiler/ic-mekan" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">İç Mekan Bitkileri</Link>
+                  <Link href="/bitkiler/ofis-bitkileri" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Ofis Bitkileri</Link>
+                  <Link href="/bitkiler/bakimi-kolay" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Bakımı Kolay</Link>
                 </div>
               </div>
-              
-              {/* SriLanka */}
-              <Link
-                href="/sri-lanka"
-                locale={locale}
-                className="text-gray-700 hover:text-amber-800 font-medium flex items-center"
-              >
-                <span>{t('sriLanka')}</span>
-                <Chip className="ml-1 bg-amber-100 text-amber-800 text-xs font-semibold py-0.5 px-1.5" size="sm">{t('new')}</Chip>
-              </Link>
-              
-              {/* Blog */}
-              <Link
-                href="/blog"
-                locale={locale}
-                className="text-gray-700 hover:text-amber-800 font-medium"
-              >
-                {t('blog')}
-              </Link>
-              
-              {/* Contact */}
-              <Link
-                href="/contact"
-                locale={locale}
-                className="text-gray-700 hover:text-amber-800 font-medium"
-              >
-                {t('contact')}
-              </Link>
+
+              {/* Tekli Linkler */}
+              <Link href="/premium-cicekler" className="text-gray-800 hover:text-[#eb1260] font-medium px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">Premium Çiçekler</Link>
+              <Link href="/saksilar" className="text-gray-800 hover:text-[#eb1260] font-medium px-3 py-2 rounded-md hover:bg-pink-50 transition-colors">Saksılar</Link>
             </div>
 
-            {/* Dil Seçimi (sağda) */}
-            <Dropdown>
-              <DropdownTrigger>
-                <button className="flex items-center space-x-1 focus:outline-none">
-                  <Image
-                    src={getFlag(locale)}
-                    alt={locale === 'en' ? 'English' : locale === 'sr' ? 'Srpski' : 'Türkçe'}
-                    width={24}
-                    height={24}
-                  />
-                  <span className="text-gray-700 font-medium">{locale?.toUpperCase()}</span>
-                </button>
-              </DropdownTrigger>
-              <DropdownMenu 
-                aria-label="Language selection" 
-                onAction={handleLanguageChange}
-                className="animate-fadeIn"
+            {/* Sağ taraf: Sepet & Giriş/Kayıt ikonu */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {/* Sepet İkonu */}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                aria-label="Sepet"
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-700 hover:text-[#eb1260] hover:border-[#eb1260] hover:bg-pink-50 transition-colors"
               >
-                <DropdownItem
-                  key="en"
-                  startContent={
-                    <Image
-                      src={enFlag}
-                      alt="English"
-                      width={24}
-                      height={24}
-                    />
-                  }
-                >
-                  English
-                </DropdownItem>
-                <DropdownItem
-                  key="tr"
-                  startContent={
-                    <Image
-                      src={trFlag}
-                      alt="Türkçe"
-                      width={24}
-                      height={24}
-                    />
-                  }
-                >
-                  Türkçe
-                </DropdownItem>
-                <DropdownItem
-                  key="sr"
-                  startContent={
-                    <Image
-                      src={srFlag}
-                      alt="Srpski"
-                      width={24}
-                      height={24}
-                    />
-                  }
-                >
-                  Srpski
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                {/* Sepet Badge */}
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#eb1260] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  1
+                </span>
+              </button>
+
+              {/* Giriş/Kayıt İkonu */}
+              <Link
+                href="/api/auth/signin"
+                aria-label="Giriş / Kayıt"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-700 hover:text-[#eb1260] hover:border-[#eb1260] hover:bg-pink-50 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 20.25a8.25 8.25 0 0115 0" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -291,161 +189,88 @@ const Navbar = () => {
             </div>
 
             {/* Mobil Menü Öğeleri */}
-            <nav className="space-y-6">
-              {/* Balkan Turları */}
+            <nav className="space-y-6 divide-y divide-gray-100">
+              {/* Çiçek Türleri */}
               <div>
                 <button
-                  onClick={() => toggleSubmenu('balkan')}
-                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-amber-800 transition-colors"
+                  onClick={() => toggleSubmenu('types')}
+                  aria-expanded={activeSubmenu === 'types'}
+                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50"
                 >
-                  <span>{t('balkanTours')}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'balkan' ? 'rotate-180' : ''}`}>
+                  <span>Çiçek Türleri</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'types' ? 'rotate-180' : ''}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`mt-2 pl-4 space-y-2 transform origin-top transition-all duration-300 ease-in-out ${activeSubmenu === 'balkan' ? 'scale-y-100 opacity-100 max-h-40' : 'scale-y-0 opacity-0 max-h-0'}`}>
-                  <Link
-                    href="/balkan-tours/one-day"
-                    locale={locale}
-                    className="block text-gray-600 hover:text-amber-800"
-                  >
-                    {t('oneDayTours')}
-                  </Link>
-                  <Link
-                    href="/balkan-tours/multi-day"
-                    locale={locale}
-                    className="block text-gray-600 hover:text-amber-800"
-                  >
-                    {t('multiDayTours')}
-                  </Link>
+                <div className={`mt-2 pl-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'types' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
+                  <Link href="/cicek-turleri/guller" className="block text-gray-600 hover:text-[#eb1260]">Güller</Link>
+                  <Link href="/cicek-turleri/orkideler" className="block text-gray-600 hover:text-[#eb1260]">Orkideler</Link>
+                  <Link href="/cicek-turleri/papatyalar" className="block text-gray-600 hover:text-[#eb1260]">Papatyalar</Link>
+                  <Link href="/cicek-turleri/buketler" className="block text-gray-600 hover:text-[#eb1260]">Buketler</Link>
+                  <Link href="/cicek-turleri/aranjmanlar" className="block text-gray-600 hover:text-[#eb1260]">Aranjmanlar</Link>
+                  <Link href="/cicek-turleri/saksi-cicekleri" className="block text-gray-600 hover:text-[#eb1260]">Saksı Çiçekleri</Link>
                 </div>
               </div>
 
-              {/* Sırbistan Turları */}
+              {/* Özel Günler */}
               <div>
                 <button
-                  onClick={() => toggleSubmenu('serbia')}
-                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-amber-800 transition-colors"
+                  onClick={() => toggleSubmenu('occasions')}
+                  aria-expanded={activeSubmenu === 'occasions'}
+                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50"
                 >
-                  <span>{t('serbiaTours')}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'serbia' ? 'rotate-180' : ''}`}>
+                  <span>Özel Günler</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'occasions' ? 'rotate-180' : ''}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`mt-2 pl-4 space-y-2 transform origin-top transition-all duration-300 ease-in-out ${activeSubmenu === 'serbia' ? 'scale-y-100 opacity-100 max-h-40' : 'scale-y-0 opacity-0 max-h-0'}`}>
-                  <Link
-                    href="/serbia-tours/one-day"
-                    locale={locale}
-                    className="block text-gray-600 hover:text-amber-800"
-                  >
-                    {t('oneDayTours')}
-                  </Link>
-                  <Link
-                    href="/serbia-tours/multi-day"
-                    locale={locale}
-                    className="block text-gray-600 hover:text-amber-800"
-                  >
-                    {t('multiDayTours')}
-                  </Link>
+                <div className={`mt-2 pl-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'occasions' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
+                  <Link href="/ozel-gunler/dogum-gunu" className="block text-gray-600 hover:text-[#eb1260]">Doğum Günü</Link>
+                  <Link href="/ozel-gunler/yildonumu" className="block text-gray-600 hover:text-[#eb1260]">Yıldönümü</Link>
+                  <Link href="/ozel-gunler/sevgililer-gunu" className="block text-gray-600 hover:text-[#eb1260]">Sevgililer Günü</Link>
+                  <Link href="/ozel-gunler/anneler-gunu" className="block text-gray-600 hover:text-[#eb1260]">Anneler Günü</Link>
+                  <Link href="/ozel-gunler/gecmis-olsun" className="block text-gray-600 hover:text-[#eb1260]">Geçmiş Olsun</Link>
+                  <Link href="/ozel-gunler/taziye" className="block text-gray-600 hover:text-[#eb1260]">Taziye</Link>
                 </div>
               </div>
               
-              {/* Yat Turları */}
+              {/* Bitkiler */}
               <div>
                 <button
-                  onClick={() => toggleSubmenu('yacht')}
-                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-amber-800 transition-colors"
+                  onClick={() => toggleSubmenu('plants')}
+                  aria-expanded={activeSubmenu === 'plants'}
+                  className="flex justify-between items-center w-full text-left text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50"
                 >
-                  <div className="flex items-center">
-                    <span>{t('yachtTours')}</span>
-                    <Chip className="ml-1 bg-amber-100 text-amber-800 text-xs font-semibold py-0.5 px-1.5" size="sm">{t('new')}</Chip>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'yacht' ? 'rotate-180' : ''}`}>
+                  <span>Bitkiler</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`w-5 h-5 transform transition-transform duration-300 ${activeSubmenu === 'plants' ? 'rotate-180' : ''}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`mt-2 pl-4 space-y-2 transform origin-top transition-all duration-300 ease-in-out ${activeSubmenu === 'yacht' ? 'scale-y-100 opacity-100 max-h-40' : 'scale-y-0 opacity-0 max-h-0'}`}>
-                  <Link
-                    href="/yacht-tours/turkey"
-                    locale={locale}
-                    className="block text-gray-600 hover:text-amber-800"
-                  >
-                    {t('turkeyYachtTours')}
-                  </Link>
-                  <Link
-                    href="/yacht-tours/croatia"
-                    locale={locale}
-                    className="block text-gray-600 hover:text-amber-800"
-                  >
-                    {t('croatiaYachtTours')}
-                  </Link>
+                <div className={`mt-2 pl-4 space-y-2 overflow-hidden transition-all duration-300 ease-in-out ${activeSubmenu === 'plants' ? 'opacity-100 max-h-80' : 'opacity-0 max-h-0'}`}>
+                  <Link href="/bitkiler/sukulentler" className="block text-gray-600 hover:text-[#eb1260]">Sukulentler</Link>
+                  <Link href="/bitkiler/kaktusler" className="block text-gray-600 hover:text-[#eb1260]">Kaktüsler</Link>
+                  <Link href="/bitkiler/ic-mekan" className="block text-gray-600 hover:text-[#eb1260]">İç Mekan Bitkileri</Link>
+                  <Link href="/bitkiler/ofis-bitkileri" className="block text-gray-600 hover:text-[#eb1260]">Ofis Bitkileri</Link>
+                  <Link href="/bitkiler/bakimi-kolay" className="block text-gray-600 hover:text-[#eb1260]">Bakımı Kolay</Link>
                 </div>
               </div>
 
-              {/* SriLanka */}
-              <div className="flex items-center">
-                <Link
-                  href="/sri-lanka"
-                  locale={locale}
-                  className="block text-lg font-medium text-gray-800 hover:text-amber-800 transition-colors"
-                >
-                  {t('sriLanka')}
-                </Link>
-                <Chip className="ml-1 bg-amber-100 text-amber-800 text-xs font-semibold py-0.5 px-1.5" size="sm">{t('new')}</Chip>
-              </div>
-
-              {/* Blog */}
-              <Link
-                href="/blog"
-                locale={locale}
-                className="block text-lg font-medium text-gray-800 hover:text-amber-800 transition-colors"
-              >
-                {t('blog')}
-              </Link>
+              {/* Tekli Linkler */}
+              <Link href="/premium-cicekler" className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50">Premium Çiçekler</Link>
+              <Link href="/saksilar" className="block text-lg font-medium text-gray-800 hover:text-[#eb1260] transition-colors px-2 py-2 rounded-md hover:bg-pink-50">Saksılar</Link>
               
-              {/* Contact */}
-              <Link
-                href="/contact"
-                locale={locale}
-                className="block text-lg font-medium text-gray-800 hover:text-amber-800 transition-colors"
-              >
-                {t('contact')}
-              </Link>
+              
             </nav>
 
-            {/* Mobil Dil Seçimi */}
-            <div className="mt-10 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-500 mb-3">{locale === 'en' ? 'Language' : locale === 'sr' ? 'Jezik' : 'Dil'}</p>
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => handleLanguageChange('tr')}
-                  className={`flex items-center space-x-2 ${locale === 'tr' ? 'font-medium' : 'text-gray-600'}`}
-                >
-                  <Image src={trFlag} alt="Türkçe" width={20} height={20} />
-                  <span>TR</span>
-                </button>
-                <button
-                  onClick={() => handleLanguageChange('en')}
-                  className={`flex items-center space-x-2 ${locale === 'en' ? 'font-medium' : 'text-gray-600'}`}
-                >
-                  <Image src={enFlag} alt="English" width={20} height={20} />
-                  <span>EN</span>
-                </button>
-                <button
-                  onClick={() => handleLanguageChange('sr')}
-                  className={`flex items-center space-x-2 ${locale === 'sr' ? 'font-medium' : 'text-gray-600'}`}
-                >
-                  <Image src={srFlag} alt="Srpski" width={20} height={20} />
-                  <span>SR</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Spacer div to prevent content from going under navbar */}
       <div className="h-20"></div>
+
+      {/* Sepet Drawer */}
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   )
 }
