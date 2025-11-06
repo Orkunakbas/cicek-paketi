@@ -8,6 +8,7 @@ import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import Navbar from '@/components/menu/Navbar'
 import Footer from '@/components/footer/Footer'
+import AiasistantButton from '@/components/ai-asistant/AiasistantButton'
 
 // AppContent'i düzeltelim
 function AppContent({ Component, pageProps }) {
@@ -28,6 +29,7 @@ export default function App({ Component, pageProps }) {
       <HeroUIProvider>
         <AppContent Component={Component} pageProps={pageProps} />
         <Toaster position="bottom-right" />
+        <AiasistantButton />
       </HeroUIProvider>
     </Provider>
   )
