@@ -12,6 +12,8 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
 
   // Örnek ürün verisi
   const product = {
@@ -47,6 +49,39 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     console.log('Sepete eklendi:', { product, quantity })
     // Sepete ekleme işlemi
+  }
+
+  // Mouse drag handlers
+  const handleMouseDown = (e) => {
+    setIsDragging(true)
+    setStartX(e.clientX)
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return
+    
+    const diff = e.clientX - startX
+    const threshold = 50 // Minimum sürükleme mesafesi
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0 && selectedImage > 0) {
+        // Sola kaydır (önceki resim)
+        setSelectedImage(selectedImage - 1)
+        setStartX(e.clientX)
+      } else if (diff < 0 && selectedImage < product.images.length - 1) {
+        // Sağa kaydır (sonraki resim)
+        setSelectedImage(selectedImage + 1)
+        setStartX(e.clientX)
+      }
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
   }
 
   return (
@@ -93,26 +128,33 @@ const ProductDetail = () => {
             </div>
 
             {/* Ana Görsel */}
-            <div className="relative flex-1 aspect-square rounded-2xl overflow-hidden bg-gray-50 order-1 md:order-2">
+            <div 
+              className="relative flex-1 aspect-square rounded-2xl overflow-hidden bg-gray-50 order-1 md:order-2 cursor-grab active:cursor-grabbing select-none"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+            >
               <Image
                 src={product.images[selectedImage]}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-cover pointer-events-none"
                 unoptimized
+                draggable={false}
               />
               {product.discountedPrice && (
-                <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-[#059669] text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-lg z-10">
+                <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#059669] text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-bold shadow-lg z-10">
                   <span className="md:hidden">%{discountPercentage}</span>
                   <span className="hidden md:inline">%{discountPercentage} İndirim</span>
                 </div>
               )}
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300 group z-10"
+                className="absolute top-2 right-2 md:top-3 md:right-3 w-8 h-8 md:w-10 md:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300 group z-10"
               >
                 <FaHeart
-                  className={`w-6 h-6 transition-colors ${
+                  className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${
                     isFavorite ? 'text-[#eb1260] fill-current' : 'text-gray-700'
                   }`}
                 />
@@ -149,15 +191,15 @@ const ProductDetail = () => {
             <div className="flex items-center gap-3">
               {product.discountedPrice ? (
                 <>
-                  <span className="text-4xl font-bold text-[#eb1260]">
+                  <span className="text-3xl md:text-4xl font-bold text-[#eb1260]">
                     {product.discountedPrice} ₺
                   </span>
-                  <span className="text-2xl text-gray-500 line-through">
+                  <span className="text-xl md:text-2xl text-gray-500 line-through">
                     {product.price} ₺
                   </span>
                 </>
               ) : (
-                <span className="text-4xl font-bold text-gray-900">
+                <span className="text-3xl md:text-4xl font-bold text-gray-900">
                   {product.price} ₺
                 </span>
               )}
@@ -260,8 +302,8 @@ const ProductDetail = () => {
         {/* Benzer Ürünler */}
         <div className="mt-16">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Benzer Ürünler</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {Array.from({ length: 4 }).map((_, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            {Array.from({ length: 5 }).map((_, index) => (
               <Product
                 key={index}
                 id={index + 1}
