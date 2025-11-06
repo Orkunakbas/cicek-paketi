@@ -81,7 +81,7 @@ const Navbar = () => {
             </button>
 
             {/* Logo (mobilde ortada, masaüstünde solda) */}
-            <div className="flex justify-center md:justify-start items-center flex-1 md:flex-initial">
+            <div className="flex justify-center md:justify-start items-center flex-1 md:flex-none">
               <Link href="/">
                 <Image
                   src={darkLogo}
@@ -95,12 +95,14 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Search Bar (ortada) - sadece desktop'ta göster */}
-            <div className="hidden md:flex flex-1 max-w-2xl">
-              <Search />
+            <div className="hidden md:flex flex-1 justify-center">
+              <div className="w-full max-w-xl">
+                <Search />
+              </div>
             </div>
 
             {/* Sağ taraf: Kargo Takip, Sepet & Giriş/Kayıt ikonu */}
-            <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+            <div className="flex items-center gap-2 flex-shrink-0 md:flex-none">
               {/* Kargo Takip İkonu */}
               <button
                 onClick={() => setIsTrackingOpen(true)}

@@ -21,9 +21,16 @@ const Product = ({
     : 0
 
   return (
-    <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
-      {/* Ürün Resmi */}
-      <Link href={url} className="relative aspect-square overflow-hidden bg-gray-50 block">
+    <div className="group relative">
+      {/* Outer Decorative Glow */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-200/40 via-pink-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md scale-105"></div>
+      
+      {/* Main Border Ring */}
+      <div className="relative rounded-2xl p-[2px] bg-gradient-to-br from-pink-200/60 via-pink-100/50 to-pink-50/40 group-hover:from-[#eb1260]/70 group-hover:via-[#ff6b9d]/60 group-hover:to-pink-300/50 shadow-md group-hover:shadow-xl transition-all duration-300">
+        {/* White Background */}
+        <div className="bg-white rounded-2xl overflow-hidden">
+          {/* Ürün Resmi */}
+          <Link href={url} className="relative aspect-square overflow-hidden bg-gray-50 block">
         <Image
           src={kapak}
           alt={urun_adi}
@@ -117,16 +124,18 @@ const Product = ({
         YENİ
       </div> */}
 
-      {/* Scrollbar gizleme CSS */}
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+          {/* Scrollbar gizleme CSS */}
+          <style jsx>{`
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
+            .scrollbar-hide {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+          `}</style>
+        </div>
+      </div>
     </div>
   )
 }
