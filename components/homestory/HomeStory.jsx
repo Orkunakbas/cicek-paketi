@@ -18,6 +18,9 @@ const HomeStory = () => {
   const setVideoRef = (id, el) => {
     if (el) {
       videoRefs.current[id] = el
+      // Mobil için ilk frame'i yükle
+      el.load()
+      el.currentTime = 0.1
     }
   }
 
