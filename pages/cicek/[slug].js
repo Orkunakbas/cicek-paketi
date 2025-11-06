@@ -84,6 +84,33 @@ const ProductDetail = () => {
     setIsDragging(false)
   }
 
+  // Touch handlers
+  const handleTouchStart = (e) => {
+    setIsDragging(true)
+    setStartX(e.touches[0].clientX)
+  }
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return
+    
+    const diff = e.touches[0].clientX - startX
+    const threshold = 50
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0 && selectedImage > 0) {
+        setSelectedImage(selectedImage - 1)
+        setStartX(e.touches[0].clientX)
+      } else if (diff < 0 && selectedImage < product.images.length - 1) {
+        setSelectedImage(selectedImage + 1)
+        setStartX(e.touches[0].clientX)
+      }
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsDragging(false)
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Breadcrumb */}
@@ -134,6 +161,9 @@ const ProductDetail = () => {
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               <Image
                 src={product.images[selectedImage]}
