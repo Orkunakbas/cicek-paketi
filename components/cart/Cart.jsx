@@ -185,11 +185,11 @@ const Cart = ({ isOpen, onClose }) => {
 
             {/* Checkout Button */}
             <Link
-              href="/checkout"
+              href="/sepet"
               className="block w-full py-4 bg-gradient-to-r from-[#eb1260] to-[#d10f54] text-white text-center font-bold rounded-xl hover:from-[#d10f54] hover:to-[#b90d47] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={onClose}
             >
-              Ödemeye Geç
+              Sepete Git
             </Link>
 
             {/* Continue Shopping */}

@@ -76,14 +76,14 @@ const Aiasistant = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl h-[600px] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
               <FaSeedling className="text-white text-xl" />
             </div>
             <div>
               <h3 className="text-white font-bold text-lg">Çiçek Paketi AI Asistan</h3>
-              <p className="text-pink-100 text-sm">Her zaman yanınızdayız 🌸</p>
+              <p className="text-emerald-100 text-sm">Her zaman yanınızdayız 🌸</p>
             </div>
           </div>
           <button
@@ -95,7 +95,7 @@ const Aiasistant = ({ isOpen, onClose }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-pink-50/30 to-white">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-emerald-50/30 to-white">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -104,14 +104,14 @@ const Aiasistant = ({ isOpen, onClose }) => {
               <div
                 className={`max-w-[75%] rounded-2xl p-4 ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white'
-                    : 'bg-white shadow-md border border-pink-100'
+                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white'
+                    : 'bg-white shadow-md border border-emerald-100'
                 }`}
               >
                 {message.sender === 'ai' && (
                   <div className="flex items-center gap-2 mb-2">
-                    <FaRobot className="text-pink-500" />
-                    <span className="text-xs font-semibold text-pink-600">AI Asistan</span>
+                    <FaRobot className="text-emerald-600" />
+                    <span className="text-xs font-semibold text-emerald-700">AI Asistan</span>
                   </div>
                 )}
                 <p className={`text-sm leading-relaxed ${
@@ -120,7 +120,7 @@ const Aiasistant = ({ isOpen, onClose }) => {
                   {message.text}
                 </p>
                 <span className={`text-xs mt-2 block ${
-                  message.sender === 'user' ? 'text-pink-100' : 'text-gray-400'
+                  message.sender === 'user' ? 'text-emerald-100' : 'text-gray-400'
                 }`}>
                   {message.timestamp.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -130,15 +130,15 @@ const Aiasistant = ({ isOpen, onClose }) => {
           
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-white shadow-md border border-pink-100 rounded-2xl p-4 max-w-[75%]">
+              <div className="bg-white shadow-md border border-emerald-100 rounded-2xl p-4 max-w-[75%]">
                 <div className="flex items-center gap-2 mb-2">
-                  <FaRobot className="text-pink-500" />
-                  <span className="text-xs font-semibold text-pink-600">AI Asistan</span>
+                  <FaRobot className="text-emerald-600" />
+                  <span className="text-xs font-semibold text-emerald-700">AI Asistan</span>
                 </div>
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                 </div>
               </div>
             </div>
@@ -148,19 +148,19 @@ const Aiasistant = ({ isOpen, onClose }) => {
         </div>
 
         {/* Input */}
-        <div className="p-4 bg-white border-t border-pink-100">
+        <div className="p-4 bg-white border-t border-emerald-100">
           <form onSubmit={handleSendMessage} className="flex gap-3">
             <input
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Mesajınızı yazın..."
-              className="flex-1 px-4 py-3 border border-pink-200 rounded-full focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-200 transition-all"
+              className="flex-1 px-4 py-3 border border-emerald-200 rounded-full focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
             />
             <button
               type="submit"
               disabled={!inputMessage.trim()}
-              className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full flex items-center justify-center hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+              className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full flex items-center justify-center hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
             >
               <FaPaperPlane />
             </button>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Login = ({ onClose }) => {
+const Login = ({ onClose, onLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -8,8 +8,18 @@ const Login = ({ onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // TODO: Login API çağrısı
-    console.log('Login:', formData)
+    // Direkt giriş yap (şimdilik validation yok)
+    const userData = {
+      name: formData.email ? formData.email.split('@')[0] : 'Test Kullanıcı',
+      email: formData.email || 'test@example.com'
+    }
+    
+    console.log('Login başarılı:', userData)
+    
+    if (onLogin) {
+      onLogin(userData)
+    }
+    
     onClose()
   }
 
@@ -41,7 +51,6 @@ const Login = ({ onClose }) => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="ornek@email.com"
           />
@@ -58,7 +67,6 @@ const Login = ({ onClose }) => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="••••••••"
           />

@@ -6,12 +6,34 @@ import darkLogo from '@/images/dark-logo.png'
 import Cart from '@/components/cart/Cart'
 import Search from '@/components/menu/Search'
 import AuthModal from '@/components/auth/AuthModal'
+import Profile from '@/components/menu/Profile'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  
+  // Simüle edilmiş kullanıcı durumu (gerçek uygulamada Redux/Context'ten gelecek)
+  const [isLoggedIn, setIsLoggedIn] = useState(false) // Başlangıçta giriş yapmamış
+  const [user, setUser] = useState(null)
+
+  // Giriş yapma fonksiyonu
+  const handleLogin = (userData) => {
+    setIsLoggedIn(true)
+    setUser(userData)
+    console.log('Kullanıcı giriş yaptı:', userData)
+    // Gerçek uygulamada: localStorage'a token kaydetme, Redux state güncelleme vb.
+  }
+
+  // Çıkış yapma fonksiyonu
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setUser(null)
+    console.log('Kullanıcı çıkış yaptı')
+    // Gerçek uygulamada: localStorage temizleme, Redux state sıfırlama, API çağrısı vb.
+  }
 
   // Dil kaldırıldı
 
@@ -91,11 +113,15 @@ const Navbar = () => {
                 </span>
               </button>
 
-            {/* Giriş/Kayıt İkonu */}
+            {/* Giriş/Kayıt veya Profil İkonu */}
             <button
-              onClick={() => setIsAuthModalOpen(true)}
-              aria-label="Giriş / Kayıt"
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-700 hover:text-[#eb1260] hover:border-[#eb1260] hover:bg-pink-50 transition-colors"
+              onClick={() => isLoggedIn ? setIsProfileOpen(true) : setIsAuthModalOpen(true)}
+              aria-label={isLoggedIn ? "Profil" : "Giriş / Kayıt"}
+              className={`inline-flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                isLoggedIn 
+                  ? 'border-[#eb1260] bg-pink-50 text-[#eb1260]' 
+                  : 'border-gray-200 text-gray-700 hover:text-[#eb1260] hover:border-[#eb1260] hover:bg-pink-50'
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
@@ -328,7 +354,19 @@ const Navbar = () => {
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {/* Auth Modal */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={handleLogin}
+      />
+
+      {/* Profile Menu */}
+      <Profile 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+        user={user}
+        onLogout={handleLogout}
+      />
     </>
   )
 }

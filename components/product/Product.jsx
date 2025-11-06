@@ -10,9 +10,10 @@ const Product = ({
   indirimli_fiyat,
   kapak,
   url,
-  tag = []
+  tag = [],
+  initialFavorite = false
 }) => {
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(initialFavorite)
 
   // İndirim yüzdesi hesaplama
   const discountPercentage = indirimli_fiyat 

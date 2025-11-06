@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Login from './Login'
 import Register from './Register'
 
-const AuthModal = ({ isOpen, onClose }) => {
+const AuthModal = ({ isOpen, onClose, onLogin }) => {
   const [activeTab, setActiveTab] = useState('login') // 'login' veya 'register'
 
   if (!isOpen) return null
@@ -59,9 +59,9 @@ const AuthModal = ({ isOpen, onClose }) => {
           {/* Content - Scrollable */}
           <div className="p-6 md:p-8 overflow-y-auto">
             {activeTab === 'login' ? (
-              <Login onClose={onClose} />
+              <Login onClose={onClose} onLogin={onLogin} />
             ) : (
-              <Register onClose={onClose} />
+              <Register onClose={onClose} onLogin={onLogin} />
             )}
           </div>
         </div>

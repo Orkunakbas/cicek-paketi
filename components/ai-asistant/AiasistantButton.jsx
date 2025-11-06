@@ -19,10 +19,10 @@ const AiasistantButton = () => {
       >
         <div className="relative">
           {/* Pulse Animation */}
-          <div className="absolute inset-0 bg-pink-500 rounded-full animate-ping opacity-75"></div>
+          <div className="absolute inset-0 bg-emerald-600 rounded-full animate-ping opacity-75"></div>
           
           {/* Main Button */}
-          <div className={`relative w-16 h-16 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+          <div className={`relative w-16 h-16 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
             isOpen ? 'rotate-90 scale-95' : 'hover:scale-110'
           }`}>
             {isOpen ? (
@@ -34,7 +34,7 @@ const AiasistantButton = () => {
 
           {/* Notification Badge */}
           {!isOpen && (
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full flex items-center justify-center">
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 border-2 border-white rounded-full flex items-center justify-center">
               <span className="text-white text-xs font-bold">1</span>
             </div>
           )}
