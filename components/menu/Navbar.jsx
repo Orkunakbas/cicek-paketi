@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { TbChristmasTreeFilled } from 'react-icons/tb'
+import { FaTruck } from 'react-icons/fa'
 import darkLogo from '@/images/dark-logo.png'
 import Cart from '@/components/cart/Cart'
 import Search from '@/components/menu/Search'
 import AuthModal from '@/components/auth/AuthModal'
 import Profile from '@/components/menu/Profile'
+import KargoTakip from '@/components/kargo-takip/KargoTakip'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -14,6 +16,7 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false)
   
   // Simüle edilmiş kullanıcı durumu (gerçek uygulamada Redux/Context'ten gelecek)
   const [isLoggedIn, setIsLoggedIn] = useState(false) // Başlangıçta giriş yapmamış
@@ -62,7 +65,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-50 bg-white md:border-b border-gray-200">
+      <header className="bg-white md:border-b border-gray-200">
         <div className="max-w-[1650px] w-full mx-auto">
           {/* Üst Satır: Logo, Search, İkonlar */}
           <div className="flex items-center h-20 gap-4 px-6">
@@ -96,8 +99,18 @@ const Navbar = () => {
               <Search />
             </div>
 
-            {/* Sağ taraf: Sepet & Giriş/Kayıt ikonu */}
+            {/* Sağ taraf: Kargo Takip, Sepet & Giriş/Kayıt ikonu */}
             <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+              {/* Kargo Takip İkonu */}
+              <button
+                onClick={() => setIsTrackingOpen(true)}
+                aria-label="Kargo Takip"
+                className="relative inline-flex items-center justify-center gap-2 px-3 py-2 md:w-auto w-10 h-10 rounded-full text-gray-700 hover:text-[#eb1260] hover:bg-pink-50 transition-colors"
+              >
+                <FaTruck className="w-5 h-5" />
+                <span className="hidden md:inline text-sm font-medium">Kargo Takip</span>
+              </button>
+
               {/* Sepet İkonu */}
               <button
                 onClick={() => setIsCartOpen(true)}
@@ -366,6 +379,12 @@ const Navbar = () => {
         onClose={() => setIsProfileOpen(false)} 
         user={user}
         onLogout={handleLogout}
+      />
+
+      {/* Kargo Takip Modal */}
+      <KargoTakip 
+        isOpen={isTrackingOpen}
+        onClose={() => setIsTrackingOpen(false)}
       />
     </>
   )

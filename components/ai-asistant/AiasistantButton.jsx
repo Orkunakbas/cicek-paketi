@@ -19,10 +19,10 @@ const AiasistantButton = () => {
       >
         <div className="relative">
           {/* Pulse Animation */}
-          <div className="absolute inset-0 bg-emerald-600 rounded-full animate-ping opacity-75"></div>
+          <div className="absolute inset-0 bg-[#eb1260] rounded-full animate-ping opacity-75"></div>
           
           {/* Main Button */}
-          <div className={`relative w-16 h-16 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+          <div className={`relative w-16 h-16 bg-gradient-to-r from-[#eb1260] to-[#d10f54] rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
             isOpen ? 'rotate-90 scale-95' : 'hover:scale-110'
           }`}>
             {isOpen ? (
