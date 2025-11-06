@@ -12,7 +12,10 @@ const config = {
     extend: {
       colors: {
       },
-
+      fontFamily: {
+        sans: ['Roobert', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        roobert: ['Roobert', 'sans-serif'],
+      },
     },
   },
   darkMode: "class",
