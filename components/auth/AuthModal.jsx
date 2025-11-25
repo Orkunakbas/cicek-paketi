@@ -61,7 +61,7 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
             {activeTab === 'login' ? (
               <Login onClose={onClose} onLogin={onLogin} />
             ) : (
-              <Register onClose={onClose} onLogin={onLogin} />
+              <Register onClose={onClose} switchToLogin={() => setActiveTab('login')} />
             )}
           </div>
         </div>

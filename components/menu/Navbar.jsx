@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setUser, setToken } from '@/store/slices/authSlice'
+import { getCategories } from '@/store/slices/categoriesSlice'
 import { TbChristmasTreeFilled } from 'react-icons/tb'
 import { FaTruck } from 'react-icons/fa'
 import darkLogo from '@/images/dark-logo.png'
@@ -11,6 +15,11 @@ import Profile from '@/components/menu/Profile'
 import KargoTakip from '@/components/kargo-takip/KargoTakip'
 
 const Navbar = () => {
+  const { data: session, status } = useSession()
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.auth.user)
+  const { categories, loading: categoriesLoading } = useSelector((state) => state.categories)
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
   const [isCartOpen, setIsCartOpen] = useState(false)
@@ -18,24 +27,29 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isTrackingOpen, setIsTrackingOpen] = useState(false)
   
-  // Simüle edilmiş kullanıcı durumu (gerçek uygulamada Redux/Context'ten gelecek)
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // Başlangıçta giriş yapmamış
-  const [user, setUser] = useState(null)
+  const isLoggedIn = status === 'authenticated' && !!session?.user
+
+  // Kategorileri yükle
+  useEffect(() => {
+    dispatch(getCategories())
+  }, [dispatch])
+
+  // Session değiştiğinde Redux'u güncelle
+  useEffect(() => {
+    if (session?.user && session?.accessToken) {
+      dispatch(setUser(session.user))
+      dispatch(setToken(session.accessToken))
+    }
+  }, [session, dispatch])
 
   // Giriş yapma fonksiyonu
   const handleLogin = (userData) => {
-    setIsLoggedIn(true)
-    setUser(userData)
     console.log('Kullanıcı giriş yaptı:', userData)
-    // Gerçek uygulamada: localStorage'a token kaydetme, Redux state güncelleme vb.
   }
 
   // Çıkış yapma fonksiyonu
   const handleLogout = () => {
-    setIsLoggedIn(false)
-    setUser(null)
     console.log('Kullanıcı çıkış yaptı')
-    // Gerçek uygulamada: localStorage temizleme, Redux state sıfırlama, API çağrısı vb.
   }
 
   // Dil kaldırıldı
@@ -132,16 +146,22 @@ const Navbar = () => {
             <button
               onClick={() => isLoggedIn ? setIsProfileOpen(true) : setIsAuthModalOpen(true)}
               aria-label={isLoggedIn ? "Profil" : "Giriş / Kayıt"}
-              className={`inline-flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+              className={`inline-flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-300 font-semibold text-sm ${
                 isLoggedIn 
-                  ? 'border-[#eb1260] bg-pink-50 text-[#eb1260]' 
+                  ? 'border-[#eb1260] bg-gradient-to-br from-[#eb1260] to-[#c91054] text-white shadow-lg hover:shadow-xl hover:scale-105' 
                   : 'border-gray-200 text-gray-700 hover:text-[#eb1260] hover:border-[#eb1260] hover:bg-pink-50'
               }`}
             >
+              {isLoggedIn && (session?.user || user) ? (
+                <span className="uppercase">
+                  {((session?.user?.name || user?.name || '')[0] || '') + ((session?.user?.surname || user?.surname || '')[0] || '')}
+                </span>
+              ) : (
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 20.25a8.25 8.25 0 0115 0" />
               </svg>
+              )}
             </button>
             </div>
           </div>
@@ -170,69 +190,57 @@ const Navbar = () => {
           <div className="hidden md:flex items-center h-14 border-t border-gray-100 px-6">
             <div className="flex items-center space-x-8 flex-1">
               <div className="flex items-center space-x-8">
-              {/* Çiçek Türleri */}
-              <div className="relative group">
+              {!categoriesLoading && categories.map((category) => {
+                // Alt kategorileri olan kategoriler (dropdown)
+                if (category.children && category.children.length > 0) {
+                  return (
+                    <div key={category.id} className="relative group">
                 <button className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center space-x-1 px-4 py-2 rounded-full transition-all duration-300">
-                  <span>Çiçek Türleri</span>
+                        <span>{category.name}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 <div className="absolute left-0 mt-3 w-64 opacity-0 translate-y-1 invisible group-hover:translate-y-0 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out bg-white border border-gray-100 shadow-lg rounded-lg p-3 z-50">
-                  <Link href="/cicek-turleri/guller" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Güller</Link>
-                  <Link href="/cicek-turleri/orkideler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Orkideler</Link>
-                  <Link href="/cicek-turleri/papatyalar" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Papatyalar</Link>
-                  <Link href="/cicek-turleri/buketler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Buketler</Link>
-                  <Link href="/cicek-turleri/aranjmanlar" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Aranjmanlar</Link>
-                  <Link href="/cicek-turleri/saksi-cicekleri" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Saksı Çiçekleri</Link>
+                        {category.children.map((child) => (
+                          <Link 
+                            key={child.id} 
+                            href={`/${child.category_url}`} 
+                            className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md"
+                          >
+                            {child.name}
+                          </Link>
+                        ))}
                 </div>
               </div>
-
-              {/* Özel Günler */}
-              <div className="relative group">
-                <button className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center space-x-1 px-4 py-2 rounded-full transition-all duration-300">
-                  <span>Özel Günler</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                <div className="absolute left-0 mt-3 w-64 opacity-0 translate-y-1 invisible group-hover:translate-y-0 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out bg-white border border-gray-100 shadow-lg rounded-lg p-3 z-50">
-                  <Link href="/ozel-gunler/dogum-gunu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Doğum Günü</Link>
-                  <Link href="/ozel-gunler/yildonumu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Yıldönümü</Link>
-                  <Link href="/ozel-gunler/sevgililer-gunu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Sevgililer Günü</Link>
-                  <Link href="/ozel-gunler/anneler-gunu" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Anneler Günü</Link>
-                  <Link href="/ozel-gunler/gecmis-olsun" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Geçmiş Olsun</Link>
-                  <Link href="/ozel-gunler/taziye" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Taziye</Link>
-                </div>
-              </div>
-              
-              {/* Bitkiler */}
-              <div className="relative group">
-                <button className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center space-x-1 px-4 py-2 rounded-full transition-all duration-300">
-                  <span>Bitkiler</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 transition-transform group-hover:rotate-180">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                <div className="absolute left-0 mt-3 w-64 opacity-0 translate-y-1 invisible group-hover:translate-y-0 group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out bg-white border border-gray-100 shadow-lg rounded-lg p-3 z-50">
-                  <Link href="/bitkiler/sukulentler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Sukulentler</Link>
-                  <Link href="/bitkiler/kaktusler" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Kaktüsler</Link>
-                  <Link href="/bitkiler/ic-mekan" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">İç Mekan Bitkileri</Link>
-                  <Link href="/bitkiler/ofis-bitkileri" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Ofis Bitkileri</Link>
-                  <Link href="/bitkiler/bakimi-kolay" className="block px-4 py-2 text-gray-700 hover:bg-pink-50 hover:text-[#eb1260] rounded-md">Bakımı Kolay</Link>
-                </div>
-              </div>
-
-              {/* Tekli Linkler */}
-              <Link href="/premium-cicekler" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300">Premium Çiçekler</Link>
-              <Link href="/saksilar" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300">Saksılar</Link>
-              <Link href="/bitki-bakim-malzemeleri" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300">Bitki Bakım Malzemeleri</Link>
-              
-              {/* Yılbaşı Koleksiyonu - Özel İkon ile */}
-              <Link href="/yilbasi-koleksiyonu" className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300">
-                <TbChristmasTreeFilled className="w-4 h-4 text-green-600" />
-                <span>Yılbaşı Koleksiyonu</span>
+                  )
+                }
+                
+                // Alt kategorisi olmayan kategoriler (direkt link)
+                // Yılbaşı Koleksiyonu için özel ikon kontrolü
+                if (category.category_url === 'yilbasi-koleksiyonu') {
+                  return (
+                    <Link 
+                      key={category.id}
+                      href={`/${category.category_url}`} 
+                      className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300"
+                    >
+                      <TbChristmasTreeFilled className="w-4 h-4 text-green-600" />
+                      <span>{category.name}</span>
+                    </Link>
+                  )
+                }
+                
+                return (
+                  <Link 
+                    key={category.id}
+                    href={`/${category.category_url}`} 
+                    className="text-gray-800 hover:text-white hover:bg-[#eb1260] font-medium px-4 py-2 rounded-full transition-all duration-300"
+                  >
+                    {category.name}
               </Link>
+                )
+              })}
               </div>
             </div>
           </div>
@@ -379,7 +387,7 @@ const Navbar = () => {
       <Profile 
         isOpen={isProfileOpen} 
         onClose={() => setIsProfileOpen(false)} 
-        user={user}
+        user={session?.user || user}
         onLogout={handleLogout}
       />
 

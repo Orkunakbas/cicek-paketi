@@ -1,20 +1,87 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
-import { Select, SelectItem } from '@heroui/react'
+import { Select, SelectItem, Button } from '@heroui/react'
 import { FaStar, FaTruck, FaLock, FaSmile, FaFilter } from 'react-icons/fa'
 import Product from '@/components/product/Product'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 
-const DynamicPage = () => {
+const DynamicPage = ({ products, category: apiCategory, error }) => {
   const router = useRouter()
   const { slug } = router.query
   
   // Filtre state'leri
   const [sortBy, setSortBy] = useState('recommended')
   const [priceRange, setPriceRange] = useState('all')
-  const [designType, setDesignType] = useState('all')
+  const [selectedTag, setSelectedTag] = useState('all')
   const [rating, setRating] = useState('all')
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  
+  // Tüm etiketleri topla
+  const allTags = React.useMemo(() => {
+    if (!products || products.length === 0) return []
+    const tagsSet = new Set()
+    products.forEach(product => {
+      if (product.tags) {
+        product.tags.split(',').forEach(tag => {
+          const trimmedTag = tag.trim()
+          if (trimmedTag) tagsSet.add(trimmedTag)
+        })
+      }
+    })
+    return Array.from(tagsSet)
+  }, [products])
+  
+  // Filtrelenmiş ve sıralanmış ürünler
+  const filteredAndSortedProducts = React.useMemo(() => {
+    let filtered = [...(products || [])]
+    
+    // Etiket filtresi
+    if (selectedTag !== 'all') {
+      filtered = filtered.filter(product => {
+        if (!product.tags) return false
+        const productTags = product.tags.split(',').map(t => t.trim())
+        return productTags.includes(selectedTag)
+      })
+    }
+    
+    // Fiyat aralığı filtresi
+    if (priceRange !== 'all') {
+      filtered = filtered.filter(product => {
+        const price = product.minPrice
+        if (priceRange === '0-400') return price >= 0 && price <= 400
+        if (priceRange === '400-600') return price >= 400 && price <= 600
+        if (priceRange === '600-800') return price >= 600 && price <= 800
+        if (priceRange === '800-1000') return price >= 800 && price <= 1000
+        if (priceRange === '1000-1500') return price >= 1000 && price <= 1500
+        if (priceRange === '1500-3000') return price >= 1500 && price <= 3000
+        if (priceRange === '3000+') return price >= 3000
+        return true
+      })
+    }
+    
+    // Sıralama
+    if (sortBy === 'price-asc') {
+      filtered.sort((a, b) => a.minPrice - b.minPrice)
+    } else if (sortBy === 'price-desc') {
+      filtered.sort((a, b) => b.minPrice - a.minPrice)
+    } else if (sortBy === 'newest') {
+      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    } else if (sortBy === 'popular') {
+      filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+    }
+    
+    return filtered
+  }, [products, selectedTag, priceRange, sortBy])
+  
+  // Filtre aktif mi kontrolü
+  const hasActiveFilters = selectedTag !== 'all' || priceRange !== 'all' || sortBy !== 'recommended'
+  
+  // Filtreleri temizle
+  const clearFilters = () => {
+    setSelectedTag('all')
+    setPriceRange('all')
+    setSortBy('recommended')
+  }
 
   // slug array'den kategori ve alt kategoriyi al
   const category = slug?.[0]
@@ -73,8 +140,21 @@ const DynamicPage = () => {
     return descriptions[cat] || 'En taze ve kaliteli ürünlerimizi keşfedin.'
   }
 
-  const pageTitle = subcategory ? getTitle(subcategory) : getTitle(category)
-  const pageDescription = getDescription(category, subcategory)
+  // API'den gelen kategori bilgisi varsa onu kullan, yoksa fallback
+  const pageTitle = apiCategory?.name || (subcategory ? getTitle(subcategory) : getTitle(category))
+  const pageDescription = apiCategory?.description || getDescription(category, subcategory)
+
+  // Hata durumu
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bir hata oluştu</h1>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -120,8 +200,18 @@ const DynamicPage = () => {
               <FaFilter className="text-sm" />
               <span className="font-medium">Filtrele</span>
             </button>
-            <div className="text-sm text-gray-600">
-              <span className="font-semibold text-base text-gray-900">28</span> ürün bulundu
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-gray-600">
+                <span className="font-semibold text-base text-gray-900">{filteredAndSortedProducts?.length || 0}</span> ürün bulundu
+              </div>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-[#eb1260] hover:text-[#d10f54] font-medium underline"
+                >
+                  Filtreleri Temizle
+                </button>
+              )}
             </div>
           </div>
 
@@ -129,25 +219,22 @@ const DynamicPage = () => {
           <div className="hidden md:flex flex-col lg:flex-row gap-4 items-start lg:items-end">
             {/* Filtreler */}
             <div className="flex flex-wrap gap-4">
-              {/* Tasarım Tipi */}
+              {/* Etikete Göre */}
               <div className="w-48">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Tasarım Tipi</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Etikete Göre</label>
                 <Select
-                  selectedKeys={[designType]}
-                  onSelectionChange={(keys) => setDesignType(Array.from(keys)[0])}
-                  placeholder="Tasarım seçin"
+                  selectedKeys={[selectedTag]}
+                  onSelectionChange={(keys) => setSelectedTag(Array.from(keys)[0])}
+                  placeholder="Etiket seçin"
                   className="w-full"
                   classNames={{
                     trigger: "border-gray-300 hover:border-[#eb1260]",
                   }}
                 >
                   <SelectItem key="all">Tümü</SelectItem>
-                  <SelectItem key="buket">Buket</SelectItem>
-                  <SelectItem key="vazoda">Vazoda Çiçek</SelectItem>
-                  <SelectItem key="saksida">Saksıda Çiçek</SelectItem>
-                  <SelectItem key="kutuda">Kutuda Çiçek</SelectItem>
-                  <SelectItem key="sepet">Sepet Çiçek</SelectItem>
-                  <SelectItem key="celenk">Çelenk</SelectItem>
+                  {allTags.map((tag) => (
+                    <SelectItem key={tag}>{tag}</SelectItem>
+                  ))}
                 </Select>
               </div>
 
@@ -249,12 +336,26 @@ const DynamicPage = () => {
                   <SelectItem key="popular">En Popüler</SelectItem>
                 </Select>
               </div>
+
+              {/* Filtreleri Temizle Butonu */}
+              {hasActiveFilters && (
+                <div className="flex items-end">
+                  <Button
+                    onClick={clearFilters}
+                    color="primary"
+                    style={{ backgroundColor: '#eb1260' }}
+                    className="font-medium"
+                  >
+                    Filtreleri Temizle
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Sonuç Sayısı */}
             <div className="ml-auto">
               <div className="text-sm text-gray-600">
-                <span className="font-semibold text-base text-gray-900">28</span> ürün bulundu
+                <span className="font-semibold text-base text-gray-900">{filteredAndSortedProducts?.length || 0}</span> ürün bulundu
               </div>
             </div>
           </div>
@@ -321,25 +422,22 @@ const DynamicPage = () => {
 
               {/* Filtreler */}
               <div className="space-y-6">
-                {/* Tasarım Tipi */}
+                {/* Etikete Göre */}
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Tasarım Tipi</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Etikete Göre</label>
                   <Select
-                    selectedKeys={[designType]}
-                    onSelectionChange={(keys) => setDesignType(Array.from(keys)[0])}
-                    placeholder="Tasarım seçin"
+                    selectedKeys={[selectedTag]}
+                    onSelectionChange={(keys) => setSelectedTag(Array.from(keys)[0])}
+                    placeholder="Etiket seçin"
                     className="w-full"
                     classNames={{
                       trigger: "border-gray-300 hover:border-[#eb1260]",
                     }}
                   >
                     <SelectItem key="all">Tümü</SelectItem>
-                    <SelectItem key="buket">Buket</SelectItem>
-                    <SelectItem key="vazoda">Vazoda Çiçek</SelectItem>
-                    <SelectItem key="saksida">Saksıda Çiçek</SelectItem>
-                    <SelectItem key="kutuda">Kutuda Çiçek</SelectItem>
-                    <SelectItem key="sepet">Sepet Çiçek</SelectItem>
-                    <SelectItem key="celenk">Çelenk</SelectItem>
+                    {allTags.map((tag) => (
+                      <SelectItem key={tag}>{tag}</SelectItem>
+                    ))}
                   </Select>
                 </div>
 
@@ -456,23 +554,104 @@ const DynamicPage = () => {
 
                {/* Ürün Grid */}
                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {Array.from({ length: 28 }).map((_, index) => (
-            <Product
-              key={index}
-              id={index + 1}
-              urun_adi="Monstera Deliciosa"
-              urun_aciklama="Monstera Deliciosa, büyük, parlak yeşil ve karakteristik delikli yapraklarıyla bilinen popüler bir iç mekan bitkisidir."
-              fiyat={450}
-              indirimli_fiyat={349}
-              kapak={monsterraImage}
-              url={`/cicek/monstera-deliciosa-${index + 1}`}
-              tag={["monstera", "tropik", "iç mekan"]}
-            />
-          ))}
+          {filteredAndSortedProducts && filteredAndSortedProducts.length > 0 ? (
+            filteredAndSortedProducts.map((product) => {
+              // Tüm ürünler detay sayfasına gitsin
+              const productUrl = `/cicek/${product.slug}`
+              const imageUrl = product.coverImage 
+                ? `${process.env.NEXT_PUBLIC_API_URL}/${product.coverImage}` 
+                : monsterraImage
+              
+              // İndirimli fiyatları kontrol et
+              let minDiscountPrice = null
+              let maxDiscountPrice = null
+              
+              if (product.variants && product.variants.length > 0) {
+                const discountPrices = product.variants
+                  .map(v => v.discount_price)
+                  .filter(price => price !== null && price !== undefined)
+                
+                if (discountPrices.length > 0) {
+                  minDiscountPrice = Math.min(...discountPrices)
+                  maxDiscountPrice = Math.max(...discountPrices)
+                }
+              }
+              
+              return (
+                <Product
+                  key={product.id}
+                  id={product.id}
+                  urun_adi={product.name}
+                  urun_aciklama={product.short_description}
+                  minPrice={product.minPrice}
+                  maxPrice={product.maxPrice}
+                  minDiscountPrice={minDiscountPrice}
+                  maxDiscountPrice={maxDiscountPrice}
+                  kapak={imageUrl}
+                  url={productUrl}
+                  tag={product.tags ? product.tags.split(',').map(t => t.trim()) : []}
+                />
+              )
+            })
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500 text-lg">Bu kategoride henüz ürün bulunmamaktadır.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
+}
+
+// Server-Side Rendering
+export async function getServerSideProps(context) {
+  const { slug } = context.params
+  const categoryUrl = Array.isArray(slug) ? slug.join('/') : slug
+
+  // API URL'i oluştur
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products/${categoryUrl}`
+  
+  console.log('🔍 Fetching products from:', apiUrl)
+  console.log('📂 Category URL:', categoryUrl)
+
+  try {
+    const response = await fetch(apiUrl)
+    
+    console.log('📡 Response status:', response.status)
+    
+    if (!response.ok) {
+      console.error('❌ API Error:', response.status, response.statusText)
+      return {
+        props: {
+          products: [],
+          category: null,
+          error: 'Ürünler yüklenirken bir hata oluştu'
+        }
+      }
+    }
+
+    const data = await response.json()
+    console.log('✅ Products fetched:', data.data?.length || 0, 'ürün')
+    console.log('📋 Category:', data.category?.name || 'N/A')
+
+    return {
+      props: {
+        products: data.data || [],
+        category: data.category || null,
+        error: null
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error fetching products:', error)
+    return {
+      props: {
+        products: [],
+        category: null,
+        error: 'Sunucu hatası oluştu'
+      }
+    }
+  }
 }
 
 export default DynamicPage

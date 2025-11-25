@@ -1,11 +1,89 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useDispatch, useSelector } from 'react-redux'
+import { getProfile, updateProfile, clearUpdateSuccess } from '@/store/slices/profilSlice'
 import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes } from 'react-icons/fa'
+import toast from 'react-hot-toast'
 
 const Profil = () => {
   const router = useRouter()
+  const dispatch = useDispatch()
+  const { profile, loading, error, updateSuccess } = useSelector((state) => state.profile)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    surname: '',
+    email: '',
+    phone: ''
+  })
+
+  // Profil bilgilerini yükle
+  useEffect(() => {
+    dispatch(getProfile())
+  }, [dispatch])
+
+  // Profile state'i değiştiğinde formu güncelle
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        surname: profile.surname || '',
+        email: profile.email || '',
+        phone: profile.phone?.replace('+90', '') || ''
+      })
+    }
+  }, [profile])
+
+  // Güncelleme başarılı olduğunda toast göster
+  useEffect(() => {
+    if (updateSuccess) {
+      toast.success('Profil bilgileriniz güncellendi!')
+      dispatch(clearUpdateSuccess())
+    }
+  }, [updateSuccess, dispatch])
+
+  // Hata durumunda toast göster
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    
+    // Telefon için sadece rakam
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '').slice(0, 10)
+      setFormData(prev => ({ ...prev, [name]: numericValue }))
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!formData.name || !formData.surname) {
+      toast.error('Ad ve Soyad alanları zorunludur!')
+      return
+    }
+
+    if (formData.phone && formData.phone.length !== 10) {
+      toast.error('Geçerli bir telefon numarası girin!')
+      return
+    }
+
+    const updateData = {
+      name: formData.name,
+      surname: formData.surname,
+      email: formData.email,
+      phone: formData.phone ? `+90${formData.phone}` : null
+    }
+
+    await dispatch(updateProfile(updateData))
+  }
 
   const menuItems = [
     { icon: FaUser, label: 'Profilim', href: '/profil' },
@@ -83,8 +161,12 @@ const Profil = () => {
             <div className="bg-white rounded-2xl shadow-md p-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-6">Profilim</h1>
               
-              {/* Profile Form */}
-              <div className="space-y-6">
+              {loading && !profile ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#eb1260]"></div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Ad Soyad */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -93,7 +175,10 @@ const Profil = () => {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Orkun"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                     />
                   </div>
@@ -103,7 +188,10 @@ const Profil = () => {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Akbaş"
+                        name="surname"
+                        value={formData.surname}
+                        onChange={handleChange}
+                        required
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                     />
                   </div>
@@ -116,7 +204,10 @@ const Profil = () => {
                   </label>
                   <input
                     type="email"
-                    defaultValue="orkun@example.com"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                   />
                 </div>
@@ -126,55 +217,42 @@ const Profil = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Telefon Numarası
                   </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-medium">
+                        +90
+                      </span>
                   <input
                     type="tel"
-                    placeholder="(5__) ___ __ __"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        maxLength={10}
+                        className="w-full pl-14 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
+                        placeholder="5xx xxx xx xx"
                   />
                 </div>
-
-                {/* Doğum Tarihi */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Doğum Tarihi
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
-                  />
-                </div>
-
-                {/* Cinsiyet */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cinsiyet
-                  </label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center">
-                      <input type="radio" name="gender" value="male" className="w-4 h-4 text-[#eb1260] focus:ring-[#eb1260]" />
-                      <span className="ml-2 text-gray-700">Erkek</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input type="radio" name="gender" value="female" className="w-4 h-4 text-[#eb1260] focus:ring-[#eb1260]" />
-                      <span className="ml-2 text-gray-700">Kadın</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input type="radio" name="gender" value="other" className="w-4 h-4 text-[#eb1260] focus:ring-[#eb1260]" />
-                      <span className="ml-2 text-gray-700">Belirtmek İstemiyorum</span>
-                    </label>
-                  </div>
+                    <p className="text-xs text-gray-500 mt-1">10 haneli telefon numaranızı giriniz</p>
                 </div>
 
                 {/* Buttons */}
                 <div className="flex gap-4 pt-4">
-                  <button className="px-6 py-2.5 bg-[#e8125f] text-white rounded-lg font-medium hover:bg-[#d10f54] transition-colors">
-                    Kaydet
+                    <button 
+                      type="submit"
+                      disabled={loading}
+                      className="px-6 py-2.5 bg-[#e8125f] text-white rounded-lg font-medium hover:bg-[#d10f54] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Kaydediliyor...' : 'Kaydet'}
                   </button>
-                  <button className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    <button 
+                      type="button"
+                      onClick={() => dispatch(getProfile())}
+                      className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                    >
                     İptal
                   </button>
                 </div>
-              </div>
+                </form>
+              )}
             </div>
           </main>
         </div>

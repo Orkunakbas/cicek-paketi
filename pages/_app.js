@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import {  HeroUIProvider } from "@heroui/react";
 import { Provider } from 'react-redux'
 import { store } from '@/store/store'
+import { SessionProvider } from 'next-auth/react'
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import Navbar from '@/components/menu/Navbar'
@@ -23,8 +24,9 @@ function AppContent({ Component, pageProps }) {
 
 // i18n kaldırıldı
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps: { session, ...pageProps } }) {
   return (
+    <SessionProvider session={session}>
     <Provider store={store}>
       <HeroUIProvider>
         <AppContent Component={Component} pageProps={pageProps} />
@@ -32,5 +34,6 @@ export default function App({ Component, pageProps }) {
         <AiasistantButton />
       </HeroUIProvider>
     </Provider>
+    </SessionProvider>
   )
 }

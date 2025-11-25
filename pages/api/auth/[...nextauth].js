@@ -13,7 +13,7 @@ export default NextAuth({
         try {
           console.log('NextAuth: Giriş denemesi', credentials?.email);
           
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -29,20 +29,28 @@ export default NextAuth({
 
           const userData = await response.json();
           
-          if (!userData?.token) {
-            console.error('NextAuth: Token bulunamadı');
+          console.log('NextAuth: Backend response:', userData);
+          
+          // Backend nested response yapısı: { success, message, data: { user, token } }
+          const user = userData?.data?.user || userData?.user || userData;
+          const token = userData?.data?.token || userData?.token || userData?.accessToken;
+          
+          if (!token) {
+            console.error('NextAuth: Token bulunamadı', userData);
             return null;
           }
 
           console.log('NextAuth: Giriş başarılı, token alındı');
           
           return {
-            user_id: userData.user_id,
-            fullname: userData.fullname,
-            email: userData.email,
-            role: userData.role,
-            token: userData.token,
-            companies: userData.companies || []
+            id: user.id || user.user_id,
+            name: user.name,
+            surname: user.surname,
+            email: user.email,
+            phone: user.phone,
+            role: user.role,
+            token: token,
+            companies: user.companies || []
           };
         } catch (err) {
           console.error('NextAuth authorize error:', err);
@@ -59,11 +67,13 @@ export default NextAuth({
     async jwt({ token, user }) {
       // Sadece ilk giriş yapıldığında user objesi dolu gelir
       if (user) {
-        console.log('NextAuth: Token JWT\'ye kaydediliyor');
+        console.log('NextAuth: Token JWT\'ye kaydediliyor', user);
         token.accessToken = user.token;
-        token.user_id = user.user_id;
-        token.fullname = user.fullname;
+        token.userId = user.id;
+        token.name = user.name;
+        token.surname = user.surname;
         token.email = user.email;
+        token.phone = user.phone;
         token.role = user.role;
         token.companies = user.companies;
       }
@@ -75,9 +85,11 @@ export default NextAuth({
       
       // User bilgilerini ekle
       session.user = {
-        id: token.user_id,
-        name: token.fullname,
+        id: token.userId,
+        name: token.name,
+        surname: token.surname,
         email: token.email,
+        phone: token.phone,
         role: token.role,
         companies: token.companies
       };

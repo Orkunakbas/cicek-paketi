@@ -7,7 +7,7 @@ import monsterraImage from '@/images/urunler/monsterra.jpg'
 import monsterra2Image from '@/images/urunler/monsterra-2.jpg'
 import monsterra3Image from '@/images/urunler/monsterra-3.jpg'
 
-const ProductDetail = () => {
+const ProductDetail = ({ productData, similarProducts, error }) => {
   const router = useRouter()
   const { slug } = router.query
 
@@ -17,36 +17,64 @@ const ProductDetail = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
 
-  // Örnek ürün verisi
-  const product = {
-    id: 1,
-    name: "Monstera Deliciosa - Premium İç Mekan Bitkisi",
-    price: 450,
-    discountedPrice: 349,
-    rating: 4.8,
-    reviewCount: 127,
-    stock: 15,
-    shippingDays: 2, // Kaç gün içinde kargoya verilir
-    images: [
-      monsterraImage,
-      monsterra2Image,
-      monsterra3Image,
-      monsterraImage,
-    ],
-    description: "Monstera Deliciosa, büyük, parlak yeşil ve karakteristik delikli yapraklarıyla bilinen popüler bir iç mekan bitkisidir. Tropikal bir atmosfer yaratır ve bakımı oldukça kolaydır. Ev veya ofis ortamları için mükemmel bir seçimdir.",
-    features: [
-      "Saksı Çapı: 21 cm",
-      "Bitki Boyu: 60-80 cm",
-      "Işık İhtiyacı: Orta-Parlak Dolaylı Işık",
-      "Sulama: Haftada 1-2 kez",
-      "Bakım Seviyesi: Kolay",
-      "Evcil Hayvan Dostu: Hayır"
-    ],
-    careInstructions: "Monstera bitkisi dolaylı güneş ışığını sever. Toprak kuruduğunda sulayın, fazla su vermemeye dikkat edin. Yapraklarını düzenli olarak nemli bir bezle silin. İlkbahar ve yaz aylarında ayda bir kez gübreleme yapın.",
-    tags: ["monstera", "tropik", "iç mekan", "ofis bitkisi", "kolay bakım"]
+  // Hata durumu
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bir hata oluştu</h1>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    )
   }
 
-  const discountPercentage = Math.round(((product.price - product.discountedPrice) / product.price) * 100)
+  // Ürün verisi yoksa
+  if (!productData) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ürün bulunamadı</h1>
+          <p className="text-gray-600">Aradığınız ürün mevcut değil.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // API verisinden ürün bilgilerini hazırla
+  const variant = productData.variants?.[0] || {}
+  const hasDiscount = variant.discount_price !== null && variant.discount_price !== undefined
+  const price = variant.price || 0
+  const discountPrice = variant.discount_price || 0
+  const discountPercentage = hasDiscount ? Math.round(((price - discountPrice) / price) * 100) : 0
+  
+  // Görseller
+  const productImages = productData.images || []
+  const fallbackImages = [monsterraImage, monsterra2Image, monsterra3Image]
+  
+  // Ürün özelliklerini parse et (\r\n ile ayrılmış string)
+  const productFeatures = variant.product_features 
+    ? variant.product_features.split(/\r\n|\n/).filter(f => f.trim()) 
+    : []
+  
+  // Örnek ürün verisi (API'den gelen verilerle değiştirilecek)
+  const product = {
+    id: productData.id,
+    name: productData.name,
+    price: price,
+    discountedPrice: hasDiscount ? discountPrice : null,
+    rating: 4.8, // Şimdilik sabit, sonra API'den gelecek
+    reviewCount: 127, // Şimdilik sabit
+    stock: variant.stock_quantity || 0,
+    shippingDays: 2,
+    images: productImages.length > 0 
+      ? productImages.map(img => `${process.env.NEXT_PUBLIC_API_URL}/${img.image_url}`) 
+      : fallbackImages,
+    description: productData.short_description || '', // Kısa açıklama yukarıda
+    features: productFeatures,
+    careInstructions: productData.description || '', // Uzun açıklama bakım talimatlarında
+    tags: productData.tags ? productData.tags.split(',').map(t => t.trim()) : []
+  }
 
   const handleAddToCart = () => {
     console.log('Sepete eklendi:', { product, quantity })
@@ -176,9 +204,8 @@ const ProductDetail = () => {
                 draggable={false}
               />
               {product.discountedPrice && (
-                <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#059669] text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-bold shadow-lg z-10">
-                  <span className="md:hidden">%{discountPercentage}</span>
-                  <span className="hidden md:inline">%{discountPercentage} İndirim</span>
+                <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#059669] text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg z-10">
+                  %{discountPercentage}
                 </div>
               )}
               <button
@@ -231,7 +258,7 @@ const ProductDetail = () => {
                   </span>
                 </>
               ) : (
-                <span className="text-3xl md:text-4xl font-bold text-gray-900">
+                <span className="text-3xl md:text-4xl font-bold text-[#eb1260]">
                   {product.price} ₺
                 </span>
               )}
@@ -323,33 +350,59 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Bakım Talimatları */}
+        {/* Açıklama */}
         <div className="mt-12 p-6 bg-pink-50 rounded-2xl">
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Bakım Talimatları</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">Açıklama</h3>
           <p className="text-gray-700 leading-relaxed">
             {product.careInstructions}
           </p>
         </div>
 
         {/* Benzer Ürünler */}
-        <div className="mt-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Benzer Ürünler</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Product
-                key={index}
-                id={index + 1}
-                urun_adi="Monstera Deliciosa"
-                urun_aciklama="Monstera Deliciosa, büyük, parlak yeşil ve karakteristik delikli yapraklarıyla bilinen popüler bir iç mekan bitkisidir."
-                fiyat={450}
-                indirimli_fiyat={349}
-                kapak={monsterraImage}
-                url={`/cicek/monstera-deliciosa-${index + 1}`}
-                tag={["monstera", "tropik", "iç mekan"]}
-              />
-            ))}
+        {similarProducts && similarProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Benzer Ürünler</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+              {similarProducts.map((product) => {
+                const productUrl = `/cicek/${product.slug}`
+                const imageUrl = product.coverImage 
+                  ? `${process.env.NEXT_PUBLIC_API_URL}/${product.coverImage}` 
+                  : monsterraImage
+                
+                // İndirimli fiyatları kontrol et
+                let minDiscountPrice = null
+                let maxDiscountPrice = null
+                
+                if (product.variants && product.variants.length > 0) {
+                  const discountPrices = product.variants
+                    .map(v => v.discount_price)
+                    .filter(price => price !== null && price !== undefined)
+                  
+                  if (discountPrices.length > 0) {
+                    minDiscountPrice = Math.min(...discountPrices)
+                    maxDiscountPrice = Math.max(...discountPrices)
+                  }
+                }
+                
+                return (
+                  <Product
+                    key={product.id}
+                    id={product.id}
+                    urun_adi={product.name}
+                    urun_aciklama={product.short_description}
+                    minPrice={product.minPrice}
+                    maxPrice={product.maxPrice}
+                    minDiscountPrice={minDiscountPrice}
+                    maxDiscountPrice={maxDiscountPrice}
+                    kapak={imageUrl}
+                    url={productUrl}
+                    tag={product.tags ? product.tags.split(',').map(t => t.trim()) : []}
+                  />
+                )
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Scrollbar gizleme CSS */}
@@ -364,6 +417,79 @@ const ProductDetail = () => {
       `}</style>
     </div>
   )
+}
+
+// Server-Side Rendering
+export async function getServerSideProps(context) {
+  const { slug } = context.params
+
+  // API URL'i oluştur
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products/detail/${slug}`
+  
+  console.log('🔍 Fetching product detail from:', apiUrl)
+  console.log('📂 Product Slug:', slug)
+
+  try {
+    const response = await fetch(apiUrl)
+    
+    console.log('📡 Response status:', response.status)
+    
+    if (!response.ok) {
+      console.error('❌ API Error:', response.status, response.statusText)
+      return {
+        props: {
+          productData: null,
+          similarProducts: [],
+          error: 'Ürün detayları yüklenirken bir hata oluştu'
+        }
+      }
+    }
+
+    const data = await response.json()
+    console.log('✅ Product detail fetched successfully')
+    console.log('📋 Product Name:', data.data?.name || 'N/A')
+
+    // Benzer ürünler için ilk kategori URL'ini al
+    let similarProducts = []
+    if (data.data?.categories && data.data.categories.length > 0) {
+      const firstCategoryUrl = data.data.categories[0].url
+      console.log('🔍 Fetching similar products from category:', firstCategoryUrl)
+      
+      try {
+        const categoryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${firstCategoryUrl}`)
+        if (categoryResponse.ok) {
+          const categoryData = await categoryResponse.json()
+          const allProducts = categoryData.data || []
+          
+          // Mevcut ürünü hariç tut ve random 5 ürün seç
+          const filtered = allProducts.filter(p => p.id !== data.data.id)
+          const shuffled = filtered.sort(() => 0.5 - Math.random())
+          similarProducts = shuffled.slice(0, 5)
+          
+          console.log('✅ Similar products fetched:', similarProducts.length)
+        }
+      } catch (err) {
+        console.log('⚠️ Could not fetch similar products:', err.message)
+      }
+    }
+
+    return {
+      props: {
+        productData: data.data || null,
+        similarProducts: similarProducts,
+        error: null
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error fetching product detail:', error)
+    return {
+      props: {
+        productData: null,
+        similarProducts: [],
+        error: 'Sunucu hatası oluştu'
+      }
+    }
+  }
 }
 
 export default ProductDetail

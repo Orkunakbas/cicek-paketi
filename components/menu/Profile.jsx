@@ -1,8 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
+import { useDispatch } from 'react-redux'
+import { logoutUser } from '../../store/slices/authSlice'
 import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaSignOutAlt, FaTimes } from 'react-icons/fa'
 
 const Profile = ({ isOpen, onClose, user, onLogout }) => {
+  const dispatch = useDispatch()
+  
   if (!isOpen) return null
 
   const menuItems = [
@@ -13,13 +17,20 @@ const Profile = ({ isOpen, onClose, user, onLogout }) => {
     { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
-  const handleLogout = () => {
-    // Çıkış işlemi
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser())
+      
+      // Parent component'e bildir
     if (onLogout) {
       onLogout()
     }
+      
     console.log('Çıkış yapıldı')
     onClose()
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
   }
 
   return (
@@ -46,11 +57,15 @@ const Profile = ({ isOpen, onClose, user, onLogout }) => {
           
           {/* User Info */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <FaUser className="text-white text-lg" />
+            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-[#eb1260] font-bold text-lg uppercase">
+                {((user?.name || '')[0] || '') + ((user?.surname || '')[0] || '')}
+              </span>
             </div>
             <div>
-              <h4 className="text-white font-semibold text-base">{user?.name || 'Kullanıcı'}</h4>
+              <h4 className="text-white font-semibold text-base">
+                {`${user?.name || ''} ${user?.surname || ''}`.trim() || 'Kullanıcı'}
+              </h4>
               <p className="text-white/90 text-xs">{user?.email || 'user@example.com'}</p>
             </div>
           </div>

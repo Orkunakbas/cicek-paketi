@@ -1,31 +1,86 @@
 import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { registerUser } from '../../store/slices/authSlice'
 
-const Register = ({ onClose }) => {
+const Register = ({ onClose, switchToLogin }) => {
+  const dispatch = useDispatch()
+  const { loading } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     name: '',
+    surname: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: ''
   })
+  const [errorMsg, setErrorMsg] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setErrorMsg('')
+    setSuccessMsg('')
     
-    if (formData.password !== formData.confirmPassword) {
-      alert('Şifreler eşleşmiyor!')
+    if (!formData.name || !formData.surname) {
+      setErrorMsg('Ad ve Soyad alanları zorunludur!')
+      return
+    }
+
+    if (!formData.phone || formData.phone.length !== 10) {
+      setErrorMsg('Lütfen geçerli bir telefon numarası girin (10 hane)!')
       return
     }
     
-    // TODO: Register API çağrısı
-    console.log('Register:', formData)
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMsg('Şifreler eşleşmiyor!')
+      return
+    }
+    
+    if (formData.password.length < 6) {
+      setErrorMsg('Şifre en az 6 karakter olmalıdır!')
+      return
+    }
+
+    const result = await dispatch(registerUser({
+      name: formData.name,
+      surname: formData.surname,
+      email: formData.email,
+      phone: '+90' + formData.phone,
+      password: formData.password,
+    }))
+
+    if (registerUser.fulfilled.match(result)) {
+      setSuccessMsg('Kayıt başarılı! Giriş yapabilirsiniz.')
+      
+      // 2 saniye sonra login ekranına geç
+      setTimeout(() => {
+        if (switchToLogin) {
+          switchToLogin()
+        } else {
     onClose()
+        }
+      }, 2000)
+    } else {
+      setErrorMsg(result.payload || 'Kayıt başarısız!')
+    }
   }
 
   const handleChange = (e) => {
+    const { name, value } = e.target
+    
+    // Telefon numarası için sadece rakam girişine izin ver
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '').slice(0, 10)
+      setFormData({
+        ...formData,
+        [name]: numericValue
+      })
+    } else {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+        [name]: value
     })
+    }
   }
 
   return (
@@ -36,12 +91,28 @@ const Register = ({ onClose }) => {
         <p className="text-gray-600 text-sm">Hemen üye olun, avantajlardan yararlanın</p>
       </div>
 
+      {/* Error Message */}
+      {errorMsg && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          {errorMsg}
+        </div>
+      )}
+
+      {/* Success Message */}
+      {successMsg && (
+        <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm">
+          {successMsg}
+        </div>
+      )}
+
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Name & Surname - Grid Layout (yan yana desktop, alt alta mobile) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Name */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Ad Soyad
+              Ad
           </label>
           <input
             type="text"
@@ -51,8 +122,26 @@ const Register = ({ onClose }) => {
             onChange={handleChange}
             required
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
-            placeholder="Adınız Soyadınız"
+              placeholder="Adınız"
+            />
+          </div>
+
+          {/* Surname */}
+          <div>
+            <label htmlFor="surname" className="block text-sm font-medium text-gray-700 mb-2">
+              Soyad
+            </label>
+            <input
+              type="text"
+              id="surname"
+              name="surname"
+              value={formData.surname}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
+              placeholder="Soyadınız"
           />
+          </div>
         </div>
 
         {/* Email */}
@@ -70,6 +159,30 @@ const Register = ({ onClose }) => {
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
             placeholder="ornek@email.com"
           />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            Telefon Numarası
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-medium">
+              +90
+            </span>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              maxLength={10}
+              className="w-full pl-14 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent transition-all"
+              placeholder="5xx xxx xx xx"
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-1">10 haneli telefon numaranızı giriniz</p>
         </div>
 
         {/* Password */}
@@ -123,9 +236,10 @@ const Register = ({ onClose }) => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 bg-[#eb1260] text-white rounded-lg font-semibold hover:bg-[#d10f54] transition-colors shadow-lg hover:shadow-xl"
+          disabled={loading}
+          className="w-full py-3 bg-[#eb1260] text-white rounded-lg font-semibold hover:bg-[#d10f54] transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Kayıt Ol
+          {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
         </button>
       </form>
 

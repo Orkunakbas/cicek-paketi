@@ -1,25 +1,20 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useDispatch, useSelector } from 'react-redux'
+import { getStories } from '@/store/slices/categoriesSlice'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 
 const Stories = () => {
   const scrollContainerRef = useRef(null)
+  const dispatch = useDispatch()
+  const { stories, storiesLoading } = useSelector((state) => state.categories)
 
-  const stories = [
-    { id: 1, title: 'İndirimli Çiçekler', image: monsterraImage, link: '/indirimli-cicekler' },
-    { id: 2, title: 'Yeni Gelenler', image: monsterraImage, link: '/yeni-gelenler' },
-    { id: 3, title: 'Yeni Bebek', image: monsterraImage, link: '/yeni-bebek' },
-    { id: 4, title: 'Geçmiş Olsun', image: monsterraImage, link: '/gecmis-olsun' },
-    { id: 5, title: 'İsteme Çiçeği', image: monsterraImage, link: '/isteme-cicegi' },
-    { id: 6, title: 'Doğum Günü', image: monsterraImage, link: '/dogum-gunu' },
-    { id: 7, title: 'Yıl Dönümü', image: monsterraImage, link: '/yil-donumu' },
-    { id: 8, title: 'Premium Çiçekler', image: monsterraImage, link: '/premium-cicekler' },
-    { id: 9, title: 'Saksılar', image: monsterraImage, link: '/saksilar' },
-    { id: 10, title: 'Kaktüs & Sukulent', image: monsterraImage, link: '/kaktus-sukulent' },
-  ]
+  useEffect(() => {
+    dispatch(getStories())
+  }, [dispatch])
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
@@ -53,43 +48,64 @@ const Stories = () => {
             className="flex gap-5 md:gap-7 overflow-x-auto scrollbar-hide scroll-smooth px-6 md:px-0"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {stories.map((story) => (
-              <Link
-                key={story.id}
-                href={story.link}
-                className="flex flex-col items-center gap-2.5 flex-shrink-0 group/item"
-              >
-                {/* Story Circle */}
-                <div className="relative">
-                  {/* Outer Decorative Glow */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-200/40 via-pink-100/30 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 blur-md scale-110"></div>
-                  
-                  {/* Main Border Ring */}
-                  <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full p-[2px] bg-gradient-to-br from-pink-200/60 via-pink-100/50 to-pink-50/40 group-hover/item:from-[#eb1260]/70 group-hover/item:via-[#ff6b9d]/60 group-hover/item:to-pink-300/50 group-hover/item:shadow-lg transition-all duration-300">
-                    {/* White Ring */}
-                    <div className="w-full h-full rounded-full bg-white p-[2.5px]">
-                      {/* Image Container */}
-                      <div className="relative w-full h-full rounded-full overflow-hidden">
-                        <Image
-                          src={story.image}
-                          alt={story.title}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                        {/* Subtle Overlay on Hover */}
-                        <div className="absolute inset-0 bg-[#eb1260]/10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300"></div>
+            {storiesLoading ? (
+              // Loading skeleton
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="flex flex-col items-center gap-2.5 flex-shrink-0">
+                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gray-200 animate-pulse"></div>
+                  <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ))
+            ) : stories && stories.length > 0 ? (
+              stories.map((story) => (
+                <Link
+                  key={story.id}
+                  href={`/${story.category_url}`}
+                  className="flex flex-col items-center gap-2.5 flex-shrink-0 group/item"
+                >
+                  {/* Story Circle */}
+                  <div className="relative">
+                    {/* Outer Decorative Glow */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-200/40 via-pink-100/30 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 blur-md scale-110"></div>
+                    
+                    {/* Main Border Ring */}
+                    <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full p-[2px] bg-gradient-to-br from-pink-200/60 via-pink-100/50 to-pink-50/40 group-hover/item:from-[#eb1260]/70 group-hover/item:via-[#ff6b9d]/60 group-hover/item:to-pink-300/50 group-hover/item:shadow-lg transition-all duration-300">
+                      {/* White Ring */}
+                      <div className="w-full h-full rounded-full bg-white p-[2.5px]">
+                        {/* Image Container */}
+                        <div className="relative w-full h-full rounded-full overflow-hidden">
+                          {/* Backend'den image gelene kadar placeholder */}
+                          {story.image_url ? (
+                            <Image
+                              src={`${process.env.NEXT_PUBLIC_API_URL}/${story.image_url}`}
+                              alt={story.name}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <Image
+                              src={monsterraImage}
+                              alt={story.name}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          )}
+                          {/* Subtle Overlay on Hover */}
+                          <div className="absolute inset-0 bg-[#eb1260]/10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Story Title */}
-                <span className="text-xs md:text-sm font-medium text-gray-700 text-center max-w-[90px] md:max-w-[100px] leading-tight group-hover/item:text-[#eb1260] transition-colors duration-300">
-                  {story.title}
-                </span>
-              </Link>
-            ))}
+                  {/* Story Title */}
+                  <span className="text-xs md:text-sm font-medium text-gray-700 text-center max-w-[90px] md:max-w-[100px] leading-tight group-hover/item:text-[#eb1260] transition-colors duration-300">
+                    {story.name}
+                  </span>
+                </Link>
+              ))
+            ) : null}
           </div>
 
           {/* Sağ Ok */}

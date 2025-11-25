@@ -1,26 +1,29 @@
 import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { loginUser } from '../../store/slices/authSlice'
 
 const Login = ({ onClose, onLogin }) => {
+  const dispatch = useDispatch()
+  const { loading, error: reduxError } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Direkt giriş yap (şimdilik validation yok)
-    const userData = {
-      name: formData.email ? formData.email.split('@')[0] : 'Test Kullanıcı',
-      email: formData.email || 'test@example.com'
-    }
     
-    console.log('Login başarılı:', userData)
+    const result = await dispatch(loginUser({
+      email: formData.email,
+      password: formData.password
+    }))
     
+    if (loginUser.fulfilled.match(result)) {
     if (onLogin) {
-      onLogin(userData)
+        onLogin(result.payload.user)
+      }
+      onClose()
     }
-    
-    onClose()
   }
 
   const handleChange = (e) => {
@@ -37,6 +40,13 @@ const Login = ({ onClose, onLogin }) => {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Hoş Geldiniz!</h2>
         <p className="text-gray-600 text-sm">Hesabınıza giriş yapın</p>
       </div>
+
+      {/* Error Message */}
+      {reduxError && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          {reduxError}
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,9 +96,10 @@ const Login = ({ onClose, onLogin }) => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 bg-[#eb1260] text-white rounded-lg font-semibold hover:bg-[#d10f54] transition-colors shadow-lg hover:shadow-xl"
+          disabled={loading}
+          className="w-full py-3 bg-[#eb1260] text-white rounded-lg font-semibold hover:bg-[#d10f54] transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Giriş Yap
+          {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
         </button>
       </form>
 
