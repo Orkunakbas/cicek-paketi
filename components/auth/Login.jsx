@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUser } from '../../store/slices/authSlice'
 
-const Login = ({ onClose, onLogin }) => {
+const Login = ({ onClose, onLogin, switchToRegister }) => {
   const dispatch = useDispatch()
   const { loading, error: reduxError } = useSelector((state) => state.auth)
   const [formData, setFormData] = useState({
@@ -125,6 +125,21 @@ const Login = ({ onClose, onLogin }) => {
           Google ile Giriş Yap
         </button>
       </div>
+
+      {/* Kayıt Ol Linki */}
+      {switchToRegister && (
+        <div className="text-center pt-4 border-t border-gray-200">
+          <p className="text-sm text-gray-600">
+            Hesabınız yok mu?{' '}
+            <button 
+              onClick={switchToRegister}
+              className="text-[#eb1260] hover:text-[#d10f54] font-semibold transition-colors"
+            >
+              Kayıt Olun
+            </button>
+          </p>
+        </div>
+      )}
     </div>
   )
 }

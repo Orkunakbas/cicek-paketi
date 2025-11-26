@@ -5,6 +5,8 @@ import profilReducer from "./slices/profilSlice"
 import addressReducer from "./slices/addressSlice"
 import categoriesReducer from "./slices/categoriesSlice"
 import productsReducer from "./slices/productsSlice"
+import cartReducer from "./slices/cartSlice"
+import orderReducer from "./slices/orderSlice"
 
 export const store = configureStore({
   reducer: {
@@ -12,7 +14,9 @@ export const store = configureStore({
     profile: profilReducer,
     address: addressReducer,
     categories: categoriesReducer,
-    products: productsReducer
+    products: productsReducer,
+    cart: cartReducer,
+    order: orderReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

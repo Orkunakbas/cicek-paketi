@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setUser, setToken } from '@/store/slices/authSlice'
 import { getCategories } from '@/store/slices/categoriesSlice'
+import { closeCart, openCart, getCart } from '@/store/slices/cartSlice'
 import { TbChristmasTreeFilled } from 'react-icons/tb'
 import { FaTruck } from 'react-icons/fa'
 import darkLogo from '@/images/dark-logo.png'
@@ -19,10 +20,10 @@ const Navbar = () => {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.auth.user)
   const { categories, loading: categoriesLoading } = useSelector((state) => state.categories)
+  const { isCartOpen, totalQuantity } = useSelector((state) => state.cart)
   
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
-  const [isCartOpen, setIsCartOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isTrackingOpen, setIsTrackingOpen] = useState(false)
@@ -34,13 +35,18 @@ const Navbar = () => {
     dispatch(getCategories())
   }, [dispatch])
 
-  // Session değiştiğinde Redux'u güncelle
+  // Session değiştiğinde Redux'u güncelle ve sepeti yenile
   useEffect(() => {
     if (session?.user && session?.accessToken) {
       dispatch(setUser(session.user))
       dispatch(setToken(session.accessToken))
+      // Auth state değiştiğinde sepeti yenile
+      dispatch(getCart())
+    } else if (status === 'unauthenticated') {
+      // Giriş yapılmamışsa da sepeti yükle (session_id ile)
+      dispatch(getCart())
     }
-  }, [session, dispatch])
+  }, [session, dispatch, status])
 
   // Giriş yapma fonksiyonu
   const handleLogin = (userData) => {
@@ -129,7 +135,7 @@ const Navbar = () => {
 
               {/* Sepet İkonu */}
               <button
-                onClick={() => setIsCartOpen(true)}
+                onClick={() => dispatch(openCart())}
                 aria-label="Sepet"
                 className="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-700 hover:text-[#eb1260] hover:border-[#eb1260] hover:bg-pink-50 transition-colors"
               >
@@ -137,9 +143,11 @@ const Navbar = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 {/* Sepet Badge */}
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#eb1260] text-white text-xs font-bold rounded-full flex items-center justify-center">
-                  1
-                </span>
+                {totalQuantity > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#eb1260] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {totalQuantity}
+                  </span>
+                )}
               </button>
 
             {/* Giriş/Kayıt veya Profil İkonu */}
@@ -374,7 +382,7 @@ const Navbar = () => {
 
 
       {/* Sepet Drawer */}
-      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <Cart isOpen={isCartOpen} onClose={() => dispatch(closeCart())} />
 
       {/* Auth Modal */}
       <AuthModal 

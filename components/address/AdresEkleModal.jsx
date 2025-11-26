@@ -237,6 +237,7 @@ const AdresEkleModal = ({ isOpen, onClose }) => {
                         value={formData.first_name}
                         onChange={handleChange}
                         required
+                        placeholder="Adınızı giriniz"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                       />
                     </div>
@@ -250,6 +251,7 @@ const AdresEkleModal = ({ isOpen, onClose }) => {
                         value={formData.last_name}
                         onChange={handleChange}
                         required
+                        placeholder="Soyadınızı giriniz"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                       />
                     </div>
@@ -271,6 +273,7 @@ const AdresEkleModal = ({ isOpen, onClose }) => {
                       value={formData.company_name}
                       onChange={handleChange}
                       required
+                      placeholder="Firma adını giriniz"
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                     />
                   </div>
@@ -287,6 +290,7 @@ const AdresEkleModal = ({ isOpen, onClose }) => {
                         value={formData.tax_office}
                         onChange={handleChange}
                         required
+                        placeholder="Vergi dairesi giriniz"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#eb1260] focus:border-transparent"
                       />
                     </div>

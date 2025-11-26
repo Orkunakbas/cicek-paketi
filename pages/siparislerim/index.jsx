@@ -1,14 +1,34 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes, FaBox, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
+import { useDispatch, useSelector } from 'react-redux'
+import { useSession } from 'next-auth/react'
+import { getOrders } from '@/store/slices/orderSlice'
+import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaClock, FaMoneyBillWave } from 'react-icons/fa'
+import { GiFlowerPot } from 'react-icons/gi'
 import Image from 'next/image'
-import monsterraImage from '@/images/urunler/monsterra.jpg'
+import SiparisDetayModal from '@/components/siparis/SiparisDetayModal'
+import { Button } from '@heroui/react'
 
 const Siparislerim = () => {
   const router = useRouter()
+  const dispatch = useDispatch()
+  const { data: session, status } = useSession()
+  const { orders, loading, error } = useSelector(state => state.order)
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('all') // all, pending, completed, cancelled
+  const [activeTab, setActiveTab] = useState('all') // all, pending, shipped, delivered, cancelled
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // Giriş kontrolü
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/giris')
+    } else if (status === 'authenticated') {
+      dispatch(getOrders())
+    }
+  }, [status, dispatch, router])
 
   const menuItems = [
     { icon: FaUser, label: 'Profilim', href: '/profil' },
@@ -18,48 +38,40 @@ const Siparislerim = () => {
     { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
-  // Örnek siparişler
-  const orders = [
-    {
-      id: '#12345',
-      date: '15 Kasım 2024',
-      status: 'delivered',
-      statusText: 'Teslim Edildi',
-      total: 698,
-      items: [
-        { name: 'Monstera Deliciosa', quantity: 1, price: 349, image: monsterraImage },
-        { name: 'Yılbaşı Çiçeği', quantity: 1, price: 349, image: monsterraImage }
-      ]
-    },
-    {
-      id: '#12344',
-      date: '10 Kasım 2024',
-      status: 'shipping',
-      statusText: 'Kargoda',
-      total: 698,
-      items: [
-        { name: 'Monstera Deliciosa', quantity: 2, price: 698, image: monsterraImage }
-      ]
-    },
-    {
-      id: '#12343',
-      date: '5 Kasım 2024',
-      status: 'cancelled',
-      statusText: 'İptal Edildi',
-      total: 450,
-      items: [
-        { name: 'Orkide', quantity: 1, price: 450, image: monsterraImage }
-      ]
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric'
+    })
+  }
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'pending': return 'Beklemede'
+      case 'confirmed': return 'Onaylandı'
+      case 'preparing': return 'Hazırlanıyor'
+      case 'shipped': return 'Kargoda'
+      case 'delivered': return 'Teslim Edildi'
+      case 'cancelled': return 'İptal Edildi'
+      case 'refunded': return 'İade Edildi'
+      default: return 'Beklemede'
     }
-  ]
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700'
+      case 'confirmed':
+      case 'preparing':
+        return 'bg-blue-100 text-blue-700'
+      case 'shipped':
+        return 'bg-purple-100 text-purple-700'
       case 'delivered':
         return 'bg-green-100 text-green-700'
-      case 'shipping':
-        return 'bg-blue-100 text-blue-700'
       case 'cancelled':
+      case 'refunded':
         return 'bg-red-100 text-red-700'
       default:
         return 'bg-gray-100 text-gray-700'
@@ -68,18 +80,70 @@ const Siparislerim = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
+      case 'pending':
+        return <FaClock />
+      case 'confirmed':
+        return <FaCheckCircle />
+      case 'preparing':
+        return <FaBox />
+      case 'shipped':
+        return <FaTruck />
       case 'delivered':
         return <FaCheckCircle />
-      case 'shipping':
-        return <FaTruck />
       case 'cancelled':
+      case 'refunded':
         return <FaTimesCircle />
       default:
         return <FaBox />
     }
   }
 
+  const getPaymentStatusText = (status) => {
+    switch (status) {
+      case 'pending': return 'Ödeme Bekleniyor'
+      case 'paid': return 'Ödendi'
+      case 'failed': return 'Ödeme Başarısız'
+      case 'refunded': return 'İade Edildi'
+      default: return 'Beklemede'
+    }
+  }
+
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case 'paid':
+        return 'text-green-600'
+      case 'pending':
+        return 'text-yellow-600'
+      case 'failed':
+      case 'refunded':
+        return 'text-red-600'
+      default:
+        return 'text-gray-600'
+    }
+  }
+
   const isActive = (href) => router.pathname === href
+
+  const handleOpenModal = (order) => {
+    setSelectedOrder(order)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedOrder(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#eb1260] mx-auto mb-4"></div>
+          <p className="text-gray-600">Siparişleriniz yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -157,12 +221,22 @@ const Siparislerim = () => {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  Tümü
+                  Tümü ({orders?.length || 0})
                 </button>
                 <button
-                  onClick={() => setActiveTab('shipping')}
+                  onClick={() => setActiveTab('pending')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                    activeTab === 'shipping'
+                    activeTab === 'pending'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Beklemede
+                </button>
+                <button
+                  onClick={() => setActiveTab('shipped')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+                    activeTab === 'shipped'
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
@@ -194,7 +268,7 @@ const Siparislerim = () => {
               {/* Orders List */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {orders
-                  .filter(order => activeTab === 'all' || order.status === activeTab)
+                  ?.filter(order => activeTab === 'all' || order.order_status === activeTab)
                   .map((order) => (
                     <div
                       key={order.id}
@@ -204,64 +278,76 @@ const Siparislerim = () => {
                       <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 pb-4 border-b border-gray-100">
                         <div>
                           <h3 className="text-lg font-bold text-gray-900 mb-1">
-                            Sipariş {order.id}
+                            {order.order_number}
                           </h3>
-                          <p className="text-sm text-gray-600">{order.date}</p>
+                          <p className="text-sm text-gray-600">{formatDate(order.created_at)}</p>
                         </div>
-                        <div className="flex items-center gap-2 mt-2 md:mt-0">
-                          <span className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                            {getStatusIcon(order.status)}
-                            {order.statusText}
+                        <div className="flex flex-col items-end gap-2 mt-2 md:mt-0">
+                          <span className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${getStatusColor(order.order_status)}`}>
+                            {getStatusIcon(order.order_status)}
+                            {getStatusText(order.order_status)}
+                          </span>
+                          <span className={`text-xs font-medium ${getPaymentStatusColor(order.payment_status)}`}>
+                            <FaMoneyBillWave className="inline mr-1" />
+                            {getPaymentStatusText(order.payment_status)}
                           </span>
                         </div>
                       </div>
 
                       {/* Order Items */}
                       <div className="space-y-3 mb-4">
-                        {order.items.map((item, index) => (
+                        {order.orderItems?.map((item, index) => (
                           <div key={index} className="flex items-center gap-4">
                             <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden relative flex-shrink-0">
-                              <Image
-                                src={item.image}
-                                alt={item.name}
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
+                              {item.product_image ? (
+                                <Image
+                                  src={item.product_image}
+                                  alt={item.product_name}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <GiFlowerPot className="text-gray-400 text-3xl" />
+                                </div>
+                              )}
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-medium text-gray-900">{item.name}</h4>
+                              <h4 className="font-medium text-gray-900">{item.product_name}</h4>
                               <p className="text-sm text-gray-600">Adet: {item.quantity}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-gray-900">{item.price} ₺</p>
+                              <p className="font-bold text-gray-900">{parseFloat(item.line_total).toFixed(2)} ₺</p>
+                              <p className="text-xs text-gray-500">{parseFloat(item.price).toFixed(2)} ₺ / adet</p>
                             </div>
                           </div>
                         ))}
                       </div>
 
                       {/* Order Footer */}
-                      <div className="flex flex-col md:flex-row items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="mb-3 md:mb-0">
+                      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-4 border-t border-gray-100">
+                        <div className="text-right md:text-left">
                           <span className="text-gray-600">Toplam: </span>
-                          <span className="text-xl font-bold text-gray-900">{order.total} ₺</span>
+                          <span className="text-xl font-bold text-gray-900">{parseFloat(order.total_amount).toFixed(2)} ₺</span>
                         </div>
-                        <div className="flex gap-2">
-                          <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-                            Detaylar
-                          </button>
-                        </div>
+                        <Button
+                          onClick={() => handleOpenModal(order)}
+                          className="w-full md:w-auto bg-gray-900 text-white hover:bg-gray-800"
+                        >
+                          Detaylar
+                        </Button>
                       </div>
                     </div>
                   ))}
               </div>
 
               {/* Empty State */}
-              {orders.filter(order => activeTab === 'all' || order.status === activeTab).length === 0 && (
+              {(!orders || orders.filter(order => activeTab === 'all' || order.order_status === activeTab).length === 0) && (
                 <div className="text-center py-12">
                   <FaShoppingBag className="mx-auto text-6xl text-gray-300 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    Henüz sipariş vermediniz
+                    {activeTab === 'all' ? 'Henüz sipariş vermediniz' : 'Bu kategoride sipariş bulunamadı'}
                   </h3>
                   <p className="text-gray-600 mb-6">
                     Hemen alışverişe başlayın!
@@ -275,6 +361,13 @@ const Siparislerim = () => {
           </main>
         </div>
       </div>
+
+      {/* Sipariş Detay Modal */}
+      <SiparisDetayModal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        order={selectedOrder}
+      />
     </div>
   )
 }

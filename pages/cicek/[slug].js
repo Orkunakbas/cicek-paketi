@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
 import Image from 'next/image'
 import { FaStar, FaHeart, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa'
 import Product from '@/components/product/Product'
+import { addToCart, openCart, getCart } from '@/store/slices/cartSlice'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 import monsterra2Image from '@/images/urunler/monsterra-2.jpg'
 import monsterra3Image from '@/images/urunler/monsterra-3.jpg'
 
 const ProductDetail = ({ productData, similarProducts, error }) => {
   const router = useRouter()
+  const dispatch = useDispatch()
   const { slug } = router.query
 
   const [selectedImage, setSelectedImage] = useState(0)
@@ -16,6 +19,7 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
 
   // Hata durumu
   if (error) {
@@ -76,9 +80,35 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
     tags: productData.tags ? productData.tags.split(',').map(t => t.trim()) : []
   }
 
-  const handleAddToCart = () => {
-    console.log('Sepete eklendi:', { product, quantity })
-    // Sepete ekleme işlemi
+  const handleAddToCart = async () => {
+    if (isAddingToCart) return // Çift tıklamayı engelle
+    
+    setIsAddingToCart(true)
+    
+    try {
+      const cartData = {
+        product_id: productData.id,
+        variant_id: variant.id, // İlk varyant
+        quantity: quantity
+      }
+      
+      console.log('🚀 Frontend - Sepete Ekleniyor:', cartData)
+      
+      // Redux ile sepete ekle
+      await dispatch(addToCart(cartData)).unwrap()
+
+      console.log('✅ Ürün sepete eklendi!')
+      
+      // Sepeti güncelle ve aç
+      await dispatch(getCart())
+      dispatch(openCart())
+      
+    } catch (error) {
+      console.error('❌ Sepete ekleme hatası:', error)
+      alert('Sepete eklenirken bir hata oluştu: ' + error)
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   // Mouse drag handlers
@@ -326,9 +356,10 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
               {/* Sepete Ekle */}
               <button
                 onClick={handleAddToCart}
-                className="flex-1 py-3 px-6 bg-[#eb1260] text-white font-semibold rounded-lg hover:bg-[#d10f54] transition-colors shadow-lg hover:shadow-xl"
+                disabled={isAddingToCart || product.stock === 0}
+                className="flex-1 py-3 px-6 bg-[#eb1260] text-white font-semibold rounded-lg hover:bg-[#d10f54] transition-colors shadow-lg hover:shadow-xl disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Sepete Ekle
+                {isAddingToCart ? 'Ekleniyor...' : product.stock === 0 ? 'Stokta Yok' : 'Sepete Ekle'}
               </button>
             </div>
 

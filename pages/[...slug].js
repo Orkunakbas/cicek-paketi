@@ -585,8 +585,8 @@ const DynamicPage = ({ products, category: apiCategory, error }) => {
                   urun_aciklama={product.short_description}
                   minPrice={product.minPrice}
                   maxPrice={product.maxPrice}
-                  minDiscountPrice={minDiscountPrice}
-                  maxDiscountPrice={maxDiscountPrice}
+                  minDiscountPrice={minDiscountPrice || product.minPrice}
+                  maxDiscountPrice={maxDiscountPrice || product.maxPrice}
                   kapak={imageUrl}
                   url={productUrl}
                   tag={product.tags ? product.tags.split(',').map(t => t.trim()) : []}

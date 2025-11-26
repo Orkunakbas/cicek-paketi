@@ -1,42 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaCheckCircle, FaCreditCard, FaUniversity, FaBox, FaTruck, FaHome } from 'react-icons/fa'
 import { GiFlowerPot } from 'react-icons/gi'
-import monsterraImage from '@/images/urunler/monsterra.jpg'
 
 const SiparisOnay = () => {
   const router = useRouter()
-  const { paymentMethod } = router.query // 'credit-card' veya 'bank-transfer'
+  const { data: session, status } = useSession()
   const [confetti, setConfetti] = useState(true)
+  const [orderInfo, setOrderInfo] = useState(null)
 
-  // Örnek sipariş bilgileri (gerçek uygulamada API'den gelecek)
-  const orderInfo = {
-    orderNumber: 'ÇP' + Math.floor(Math.random() * 1000000),
-    date: new Date().toLocaleDateString('tr-TR', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }),
-    total: '378.90',
-    items: [
-      {
-        id: 1,
-        name: 'Monstera Deliciosa',
-        price: 349,
-        quantity: 1,
-        image: monsterraImage
-      }
-    ],
-    address: {
-      name: 'Orkun Akbaş',
-      phone: '0532 123 45 67',
-      address: 'Atatürk Mahallesi, Çiçek Sokak No:15 Daire:3, Kadıköy / İstanbul'
-    }
-  }
+  const isLoggedIn = status === 'authenticated' && !!session?.user
 
   useEffect(() => {
     // Konfeti animasyonunu 3 saniye sonra kapat
@@ -44,8 +20,42 @@ const SiparisOnay = () => {
     return () => clearTimeout(timer)
   }, [])
 
-  const isCardPayment = paymentMethod === 'credit-card' || !paymentMethod
-  const isBankTransfer = paymentMethod === 'bank-transfer'
+  useEffect(() => {
+    // localStorage'dan sipariş bilgilerini al
+    const storedOrder = localStorage.getItem('latest_order')
+    if (storedOrder) {
+      setOrderInfo(JSON.parse(storedOrder))
+      // Kullanıldıktan sonra temizle
+      localStorage.removeItem('latest_order')
+    } else {
+      // Sipariş bilgisi yoksa ana sayfaya yönlendir
+      router.push('/')
+    }
+  }, [router])
+
+  if (!orderInfo) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#eb1260] mx-auto mb-4"></div>
+          <p className="text-gray-600">Sipariş bilgileri yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const isCardPayment = orderInfo.payment_method === 'credit_card'
+  const isBankTransfer = orderInfo.payment_method === 'bank_transfer'
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white relative overflow-hidden">
@@ -86,11 +96,11 @@ const SiparisOnay = () => {
           </h1>
           
           <p className="text-lg text-gray-600 mb-2">
-            Sipariş No: <span className="font-bold text-[#e8125f]">#{orderInfo.orderNumber}</span>
+            Sipariş No: <span className="font-bold text-[#e8125f]">#{orderInfo.order_number}</span>
           </p>
           
           <p className="text-sm text-gray-500">
-            {orderInfo.date}
+            {formatDate(orderInfo.created_at)}
           </p>
         </div>
 
@@ -106,7 +116,7 @@ const SiparisOnay = () => {
                 Ödemeniz Başarıyla Alındı
               </h2>
               <p className="text-gray-600 mb-4">
-                Kredi kartınızdan <span className="font-bold text-[#e8125f]">{orderInfo.total} ₺</span> tutarında ödeme alınmıştır.
+                Kredi kartınızdan <span className="font-bold text-[#e8125f]">{parseFloat(orderInfo.total_amount).toFixed(2)} ₺</span> tutarında ödeme alınmıştır.
               </p>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800">
@@ -152,11 +162,11 @@ const SiparisOnay = () => {
                   </div>
                   <div className="flex justify-between py-2 border-b border-blue-200">
                     <span className="text-gray-600">Tutar:</span>
-                    <span className="font-bold text-[#e8125f] text-lg">{orderInfo.total} ₺</span>
+                    <span className="font-bold text-[#e8125f] text-lg">{parseFloat(orderInfo.total_amount).toFixed(2)} ₺</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span className="text-gray-600">Açıklama:</span>
-                    <span className="font-semibold text-gray-900">#{orderInfo.orderNumber}</span>
+                    <span className="font-semibold text-gray-900">#{orderInfo.order_number}</span>
                   </div>
                 </div>
               </div>
@@ -165,7 +175,7 @@ const SiparisOnay = () => {
                 <p className="text-sm text-yellow-800 flex items-start gap-2">
                   <span className="text-lg">⚠️</span>
                   <span>
-                    <strong>Önemli:</strong> Havale açıklamasına mutlaka sipariş numaranızı (<strong>#{orderInfo.orderNumber}</strong>) yazınız. 
+                    <strong>Önemli:</strong> Havale açıklamasına mutlaka sipariş numaranızı (<strong>#{orderInfo.order_number}</strong>) yazınız. 
                     Ödemeniz onaylandıktan sonra siparişiniz hazırlanacaktır.
                   </span>
                 </p>
@@ -183,21 +193,30 @@ const SiparisOnay = () => {
 
           {/* Ürünler */}
           <div className="space-y-4 mb-6">
-            {orderInfo.items.map((item) => (
+            {orderInfo.orderItems && orderInfo.orderItems.map((item) => (
               <div key={item.id} className="flex gap-4 pb-4 border-b border-gray-200 last:border-0">
                 <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                  {item.product_image ? (
+                    <Image
+                      src={item.product_image}
+                      alt={item.product_name}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                      <GiFlowerPot className="text-gray-400 text-3xl" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">{item.product_name}</h3>
                   <p className="text-sm text-gray-600">Adet: {item.quantity}</p>
-                  <p className="text-sm font-bold text-[#e8125f]">{item.price} ₺</p>
+                  <p className="text-sm font-bold text-[#e8125f]">{parseFloat(item.price).toFixed(2)} ₺</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-gray-900">{parseFloat(item.line_total).toFixed(2)} ₺</p>
                 </div>
               </div>
             ))}
@@ -209,9 +228,20 @@ const SiparisOnay = () => {
               <FaHome className="text-gray-600" />
               Teslimat Adresi
             </h3>
-            <p className="text-sm text-gray-900 font-semibold mb-1">{orderInfo.address.name}</p>
-            <p className="text-sm text-gray-600 mb-1">{orderInfo.address.phone}</p>
-            <p className="text-sm text-gray-600">{orderInfo.address.address}</p>
+            <p className="text-sm text-gray-900 font-semibold mb-1">
+              {orderInfo.shipping_address?.full_name || 
+               orderInfo.shipping_address?.company_name || 
+               (orderInfo.shipping_address?.name && orderInfo.shipping_address?.surname 
+                 ? `${orderInfo.shipping_address.name} ${orderInfo.shipping_address.surname}` 
+                 : orderInfo.customer_name)}
+            </p>
+            <p className="text-sm text-gray-600 mb-1">{orderInfo.shipping_address?.phone || orderInfo.customer_phone}</p>
+            <p className="text-sm text-gray-600">
+              {orderInfo.shipping_address?.address_line1}
+              {orderInfo.shipping_address?.district && orderInfo.shipping_address?.city 
+                ? `, ${orderInfo.shipping_address.district} / ${orderInfo.shipping_address.city}`
+                : ''}
+            </p>
           </div>
         </div>
 
@@ -234,7 +264,7 @@ const SiparisOnay = () => {
                 </div>
                 <div className="pt-2">
                   <h3 className="font-bold text-gray-900">Sipariş Alındı</h3>
-                  <p className="text-sm text-gray-600">{orderInfo.date}</p>
+                  <p className="text-sm text-gray-600">{formatDate(orderInfo.created_at)}</p>
                 </div>
               </div>
 
@@ -275,13 +305,15 @@ const SiparisOnay = () => {
         </div>
 
         {/* Aksiyon Butonları */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <Link
-            href="/siparislerim"
-            className="block py-4 bg-[#e8125f] text-white text-center font-bold rounded-xl hover:bg-[#d10f54] transition-all shadow-lg hover:shadow-xl"
-          >
-            Siparişlerimi Görüntüle
-          </Link>
+        <div className={`grid grid-cols-1 ${isLoggedIn ? 'md:grid-cols-2' : ''} gap-4 animate-slide-up`} style={{ animationDelay: '0.3s' }}>
+          {isLoggedIn && (
+            <Link
+              href="/siparislerim"
+              className="block py-4 bg-[#e8125f] text-white text-center font-bold rounded-xl hover:bg-[#d10f54] transition-all shadow-lg hover:shadow-xl"
+            >
+              Siparişlerimi Görüntüle
+            </Link>
+          )}
           <Link
             href="/"
             className="block py-4 bg-white border-2 border-gray-300 text-gray-700 text-center font-bold rounded-xl hover:border-[#e8125f] hover:text-[#e8125f] transition-all"

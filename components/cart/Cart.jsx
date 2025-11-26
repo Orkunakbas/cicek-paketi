@@ -1,37 +1,55 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import monsterraImage from '@/images/urunler/monsterra.jpg'
+import { useDispatch, useSelector } from 'react-redux'
+import { getCart, updateCartItem, removeCartItem, clearCart } from '@/store/slices/cartSlice'
 
 const Cart = ({ isOpen, onClose }) => {
-  // Örnek sepet verileri (gerçek uygulamada Redux/Context'ten gelecek)
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Monstera Deliciosa",
-      price: 349,
-      quantity: 1,
-      image: monsterraImage
+  const dispatch = useDispatch()
+  const { items, totalAmount, discount, grandTotal, totalQuantity, shippingCost, freeShippingThreshold, loading } = useSelector(state => state.cart)
+  
+  // Ara toplam hesapla (kargo hariç) - Backend zaten indirimli fiyatlarla gönderiyor
+  const subtotalAfterDiscount = totalAmount
+  const remainingForFreeShipping = freeShippingThreshold - subtotalAfterDiscount
+
+  // Sepeti getir
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(getCart())
     }
-  ])
+  }, [isOpen, dispatch])
 
   // Miktar güncelleme
-  const updateQuantity = (id, newQuantity) => {
+  const updateQuantity = async (cart_item_id, newQuantity) => {
     if (newQuantity < 1) return
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ))
+    try {
+      await dispatch(updateCartItem({ cart_item_id, quantity: newQuantity })).unwrap()
+      await dispatch(getCart())
+    } catch (error) {
+      console.error('Miktar güncellenemedi:', error)
+    }
   }
 
   // Ürün silme
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id))
+  const removeItem = async (cart_item_id) => {
+    try {
+      await dispatch(removeCartItem(cart_item_id)).unwrap()
+      await dispatch(getCart())
+    } catch (error) {
+      console.error('Ürün silinemedi:', error)
+    }
   }
 
-  // Toplam hesaplama
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shipping = subtotal > 500 ? 0 : 50
-  const total = subtotal + shipping
+  // Sepeti temizle
+  const handleClearCart = async () => {
+    if (!window.confirm('Sepeti tamamen temizlemek istediğinizden emin misiniz?')) return
+    
+    try {
+      await dispatch(clearCart()).unwrap()
+    } catch (error) {
+      console.error('Sepet temizlenemedi:', error)
+    }
+  }
 
   return (
     <>
@@ -59,23 +77,34 @@ const Cart = ({ isOpen, onClose }) => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Sepetim</h2>
-              <p className="text-sm text-gray-500">{cartItems.length} ürün</p>
+              <p className="text-sm text-gray-500">{totalQuantity} ürün</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-            aria-label="Sepeti Kapat"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-600">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <button
+                onClick={handleClearCart}
+                className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                aria-label="Sepeti Temizle"
+              >
+                Temizle
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+              aria-label="Sepeti Kapat"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-600">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Cart Items - Scrollable */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
-          {cartItems.length === 0 ? (
+          {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
               <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-gray-400">
@@ -93,103 +122,149 @@ const Cart = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
-                  {/* Product Image */}
-                  <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={96}
-                      height={96}
-                      unoptimized
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
+              {items.map((item) => {
+                const product = item.product || {}
+                const variant = item.variant || null
+                const imageUrl = product.image // Backend'den direkt image URL gelir
+                const productName = product.name || 'Ürün'
+                const variantOptions = variant?.options || []
+                const normalPrice = parseFloat(item.price || 0)
+                const discountPrice = item.discount_price ? parseFloat(item.discount_price) : null
+                const displayPrice = discountPrice || normalPrice
+                const quantity = parseInt(item.quantity || 1)
 
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 mb-1 truncate">{item.name}</h3>
-                    <p className="text-lg font-bold text-[#eb1260] mb-3">{item.price} ₺</p>
-
-                    {/* Quantity Controls */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                          aria-label="Azalt"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-600">
-                            <path fillRule="evenodd" d="M3.75 12a.75.75 0 01.75-.75h15a.75.75 0 010 1.5h-15a.75.75 0 01-.75-.75z" clipRule="evenodd" />
+                return (
+                  <div key={item.id} className="flex gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                    {/* Product Image */}
+                    <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                      {imageUrl ? (
+                        <Image
+                          src={imageUrl}
+                          alt={productName}
+                          width={96}
+                          height={96}
+                          unoptimized
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-400">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                           </svg>
-                        </button>
-                        <span className="w-10 text-center font-semibold text-gray-900">{item.quantity}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 mb-1 truncate">{productName}</h3>
+                      {variantOptions.length > 0 && (
+                        <p className="text-xs text-gray-500 mb-1">
+                          {variantOptions.map(opt => `${opt.name}: ${opt.value}`).join(', ')}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mb-3">
+                        <p className="text-lg font-bold text-[#eb1260]">{displayPrice.toFixed(2)} ₺</p>
+                        {discountPrice && (
+                          <p className="text-sm text-gray-500 line-through">{normalPrice.toFixed(2)} ₺</p>
+                        )}
+                      </div>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                          <button
+                            onClick={() => updateQuantity(item.id, quantity - 1)}
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                            aria-label="Azalt"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-600">
+                              <path fillRule="evenodd" d="M3.75 12a.75.75 0 01.75-.75h15a.75.75 0 010 1.5h-15a.75.75 0 01-.75-.75z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            defaultValue={quantity}
+                            onBlur={(e) => {
+                              const newQty = parseInt(e.target.value) || 1
+                              if (newQty > 0 && newQty !== quantity) {
+                                updateQuantity(item.id, newQty)
+                              } else if (newQty < 1) {
+                                e.target.value = quantity
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.target.blur()
+                              }
+                            }}
+                            className="w-10 text-center font-semibold text-gray-900 border-0 focus:outline-none focus:ring-0 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                          <button
+                            onClick={() => updateQuantity(item.id, quantity + 1)}
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                            aria-label="Artır"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-600">
+                              <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </div>
+
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                          aria-label="Artır"
+                          onClick={() => removeItem(item.id)}
+                          className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors group"
+                          aria-label="Sil"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-600">
-                            <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-400 group-hover:text-red-600 transition-colors">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                           </svg>
                         </button>
                       </div>
-
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors group"
-                        aria-label="Sil"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-400 group-hover:text-red-600 transition-colors">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
 
         {/* Footer - Summary & Checkout */}
-        {cartItems.length > 0 && (
+        {items.length > 0 && (
           <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
             {/* Summary */}
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-gray-600">
                 <span>Ara Toplam</span>
-                <span className="font-medium">{subtotal.toFixed(2)} ₺</span>
+                <span className="font-medium">{subtotalAfterDiscount.toFixed(2)} ₺</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Kargo</span>
-                <span className="font-medium">
-                  {shipping === 0 ? (
-                    <span className="text-green-600">Ücretsiz</span>
-                  ) : (
-                    `${shipping.toFixed(2)} ₺`
-                  )}
-                </span>
+                {shippingCost === 0 ? (
+                  <span className="font-medium text-green-600">Ücretsiz</span>
+                ) : (
+                  <span className="font-medium">{shippingCost.toFixed(2)} ₺</span>
+                )}
               </div>
-              {subtotal < 500 && (
+              {shippingCost > 0 && remainingForFreeShipping > 0 && (
                 <p className="text-xs text-[#eb1260] bg-pink-50 px-3 py-2 rounded-lg">
-                  500 ₺ ve üzeri alışverişlerde kargo ücretsiz!
+                  {remainingForFreeShipping.toFixed(2)} ₺ daha alışveriş yapın, kargo bedava!
                 </p>
               )}
               <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-300">
                 <span>Toplam</span>
-                <span className="text-[#eb1260]">{total.toFixed(2)} ₺</span>
+                <span className="text-[#eb1260]">{grandTotal.toFixed(2)} ₺</span>
               </div>
             </div>
 
             {/* Checkout Button */}
             <Link
-              href="/sepet"
+              href="/siparis-bilgileri"
               className="block w-full py-4 bg-gradient-to-r from-[#eb1260] to-[#d10f54] text-white text-center font-bold rounded-xl hover:from-[#d10f54] hover:to-[#b90d47] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={onClose}
             >
-              Sepete Git
+              Siparişi Tamamla
             </Link>
 
             {/* Continue Shopping */}
