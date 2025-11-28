@@ -7,7 +7,39 @@ import React from 'react'
 import { FaSeedling } from 'react-icons/fa'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 
-const Index = () => {
+export async function getServerSideProps() {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    
+    // Parallel data fetching
+    const [productsRes, bannersRes] = await Promise.all([
+      fetch(`${apiUrl}/api/products/featured`),
+      fetch(`${apiUrl}/api/banners/list`)
+    ]);
+
+    const featuredProductsData = productsRes.ok ? await productsRes.json() : { success: false, data: [] };
+    const bannersData = bannersRes.ok ? await bannersRes.json() : { success: false, data: [] };
+
+    return {
+      props: {
+        featuredProducts: featuredProductsData.success ? featuredProductsData.data : [],
+        banners: bannersData.success ? bannersData.data : []
+      }
+    }
+  } catch (error) {
+    console.error("Data fetch error:", error);
+    return {
+      props: {
+        featuredProducts: [],
+        banners: []
+      }
+    }
+  }
+}
+
+const Index = ({ featuredProducts, banners }) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
   return (
     <div>
       <Stories />
@@ -15,49 +47,23 @@ const Index = () => {
       {/* Banner Bölümü */}
       <div className="max-w-[1650px] mx-auto px-4 md:px-6 pt-0 pb-8 md:pt-0 md:pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {/* Banner 1 */}
-          <Banner
-            title="Yeni Sezon Çiçekleri"
-            subtitle="Taze ve özel çiçeklerle sevdiklerinizi mutlu edin. %30'a varan indirimler!"
-            buttonText="Hemen Keşfet"
-            buttonLink="/yeni-sezon"
-            image={monsterraImage}
-            bgColor="bg-gradient-to-br from-pink-50 to-pink-100"
-            accentColor="#eb1260"
-          />
-
-          {/* Banner 2 */}
-          <Banner
-            title="Premium Çiçekler"
-            subtitle="Evinize doğal güzellik katın. Özel bakım rehberi hediye!"
-            buttonText="İncele"
-            buttonLink="/premium-cicekler"
-            image={monsterraImage}
-            bgColor="bg-gradient-to-br from-green-50 to-emerald-100"
-            accentColor="#059669"
-          />
-
-          {/* Banner 3 - Mor */}
-          <Banner
-            title="Orkide Koleksiyonu"
-            subtitle="Zarafet ve inceliğin simgesi orkidelerle özel anlarınızı süsleyin!"
-            buttonText="Koleksiyonu Gör"
-            buttonLink="/orkide-koleksiyonu"
-            image={monsterraImage}
-            bgColor="bg-gradient-to-br from-purple-50 to-violet-100"
-            accentColor="#9333ea"
-          />
-
-          {/* Banner 4 - Sarı */}
-          <Banner
-            title="İç Mekan Bitkileri"
-            subtitle="Evinizi yeşille buluşturun. Sağlıklı ve bakımı kolay bitkiler!"
-            buttonText="Keşfet"
-            buttonLink="/ic-mekan-bitkileri"
-            image={monsterraImage}
-            bgColor="bg-gradient-to-br from-yellow-50 to-amber-100"
-            accentColor="#f59e0b"
-          />
+          {banners && banners.length > 0 ? (
+            banners.map((banner) => (
+              <Banner
+                key={banner.id}
+                title={banner.title}
+                subtitle={banner.description}
+                buttonText={banner.button_text}
+                buttonLink={banner.button_link}
+                image={banner.banner_image ? `${apiUrl}/${banner.banner_image}` : monsterraImage}
+                bgColor={banner.background_color}
+                accentColor={banner.button_color}
+              />
+            ))
+          ) : (
+            // Fallback if no banners found (optional)
+             null
+          )}
         </div>
       </div>
 
@@ -74,19 +80,27 @@ const Index = () => {
 
         {/* Ürün Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {Array.from({ length: 15 }).map((_, index) => (
-            <Product
-              key={index}
-              id={index + 1}
-              urun_adi="Monstera Deliciosa"
-              urun_aciklama="Monstera Deliciosa, büyük, parlak yeşil ve karakteristik delikli yapraklarıyla bilinen popüler bir iç mekan bitkisidir."
-              fiyat={450}
-              indirimli_fiyat={349}
-              kapak={monsterraImage}
-              url={`/cicek/monstera-deliciosa-${index + 1}`}
-              tag={["monstera", "tropik", "iç mekan"]}
-            />
-          ))}
+          {featuredProducts && featuredProducts.length > 0 ? (
+            featuredProducts.map((product) => (
+              <Product
+                key={product.id}
+                id={product.id}
+                urun_adi={product.name}
+                urun_aciklama={product.short_description}
+                minPrice={product.minPrice}
+                maxPrice={product.maxPrice}
+                minDiscountPrice={product.minDiscountPrice}
+                maxDiscountPrice={product.maxDiscountPrice}
+                kapak={product.coverImage ? `${apiUrl}/${product.coverImage}` : monsterraImage}
+                url={`/cicek/${product.slug}`}
+                tag={product.tags ? product.tags.split(',').map(t => t.trim()) : []}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-10 text-gray-500">
+              Öne çıkan ürün bulunamadı.
+            </div>
+          )}
         </div>
       </div>
 

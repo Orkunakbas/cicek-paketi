@@ -30,8 +30,6 @@ const Product = ({
 
   return (
     <div className="group relative h-full flex flex-col">
-      {/* Outer Decorative Glow */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-200/40 via-pink-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md scale-105"></div>
       
       {/* Main Border Ring */}
       <div className="relative rounded-2xl p-[2px] bg-gradient-to-br from-pink-200/60 via-pink-100/50 to-pink-50/40 group-hover:from-[#eb1260]/70 group-hover:via-[#ff6b9d]/60 group-hover:to-pink-300/50 shadow-md group-hover:shadow-xl transition-all duration-300 h-full flex flex-col">
