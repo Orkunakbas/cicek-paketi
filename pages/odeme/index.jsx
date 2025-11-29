@@ -142,7 +142,7 @@ const OdemeSayfasi = () => {
 
         // Teslimat her zaman bireysel (QuestForm'da böyle ayarladık)
         const customerName = `${shipping.name || ''} ${shipping.surname || ''}`.trim()
-        
+      
         // Customer name, email, phone shipping'den gelsin (boş kalmasın)
         orderData.customer_name = customerName || 'Misafir Kullanıcı'
         orderData.customer_email = shipping.email || ''

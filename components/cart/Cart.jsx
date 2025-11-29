@@ -90,15 +90,15 @@ const Cart = ({ isOpen, onClose }) => {
                 Temizle
               </button>
             )}
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-              aria-label="Sepeti Kapat"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-600">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+            aria-label="Sepeti Kapat"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-600">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
           </div>
         </div>
 
@@ -241,11 +241,11 @@ const Cart = ({ isOpen, onClose }) => {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Kargo</span>
-                {shippingCost === 0 ? (
+                  {shippingCost === 0 ? (
                   <span className="font-medium text-green-600">Ücretsiz</span>
-                ) : (
+                  ) : (
                   <span className="font-medium">{shippingCost.toFixed(2)} ₺</span>
-                )}
+                  )}
               </div>
               {shippingCost > 0 && remainingForFreeShipping > 0 && (
                 <p className="text-xs text-[#eb1260] bg-pink-50 px-3 py-2 rounded-lg">

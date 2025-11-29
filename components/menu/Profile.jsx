@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useDispatch } from 'react-redux'
 import { logoutUser } from '../../store/slices/authSlice'
-import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaSignOutAlt, FaTimes } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaStar, FaSignOutAlt, FaTimes } from 'react-icons/fa'
 
 const Profile = ({ isOpen, onClose, user, onLogout }) => {
   const dispatch = useDispatch()
@@ -13,8 +13,8 @@ const Profile = ({ isOpen, onClose, user, onLogout }) => {
     { icon: FaUser, label: 'Profilim', href: '/profil' },
     { icon: FaShoppingBag, label: 'Siparişlerim', href: '/siparislerim' },
     { icon: FaMapMarkerAlt, label: 'Adreslerim', href: '/adreslerim' },
+    { icon: FaStar, label: 'Değerlendirmelerim', href: '/degerlendirmeler' },
     { icon: FaHeart, label: 'Favorilerim', href: '/favorilerim' },
-    { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
   const handleLogout = async () => {

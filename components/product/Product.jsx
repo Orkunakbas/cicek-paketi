@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { FaStar, FaStarHalfAlt } from 'react-icons/fa'
 
 const Product = ({ 
   id,
@@ -13,6 +14,8 @@ const Product = ({
   kapak,
   url,
   tag = [],
+  avgRating = 0,
+  reviewCount = 0,
   initialFavorite = false
 }) => {
   const [isFavorite, setIsFavorite] = useState(initialFavorite)
@@ -85,9 +88,63 @@ const Product = ({
         </Link>
 
         {/* Ürün Açıklaması - Sabit 2 satır */}
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5rem]">
+        <p className="text-sm text-gray-600 mb-2 line-clamp-2 min-h-[2.5rem]">
           {urun_aciklama || ''}
         </p>
+
+        {/* Rating */}
+        {reviewCount > 0 && (
+          <div className="flex items-center gap-2 mb-3">
+            {/* Puan - En Başta */}
+            <span className="text-base font-bold text-gray-900">
+              {avgRating.toFixed(1)}
+            </span>
+            
+            {/* Yıldızlar - Ortada */}
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => {
+                const rating = avgRating;
+                const fillPercentage = Math.max(0, Math.min(100, (rating - i) * 100));
+                
+                if (fillPercentage >= 100) {
+                  // Tam dolu yıldız
+                  return (
+                    <FaStar
+                      key={i}
+                      className="w-4 h-4 text-yellow-400 fill-current"
+                    />
+                  );
+                } else if (fillPercentage > 0) {
+                  // Kısmi dolu yıldız - gradient ile
+                  return (
+                    <div key={i} className="relative w-4 h-4">
+                      <FaStar className="w-4 h-4 text-gray-300 fill-current absolute" />
+                      <div 
+                        className="overflow-hidden absolute top-0 left-0 h-full"
+                        style={{ width: `${fillPercentage}%` }}
+                      >
+                        <FaStar className="w-4 h-4 text-yellow-400 fill-current" />
+                      </div>
+                    </div>
+                  );
+                } else {
+                  // Boş yıldız
+                  return (
+                    <FaStar
+                      key={i}
+                      className="w-4 h-4 text-gray-300 fill-current"
+                    />
+                  );
+                }
+              })}
+            </div>
+            
+            {/* Yorum Sayısı */}
+            <span className="text-xs text-gray-500 font-normal">
+              ({reviewCount} Değerlendirme)
+            </span>
+          </div>
+        )}
 
         {/* Fiyat */}
         <div className="flex items-center gap-2 flex-wrap">

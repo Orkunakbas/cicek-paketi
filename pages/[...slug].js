@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 import { Select, SelectItem, Button } from '@heroui/react'
 import { FaStar, FaTruck, FaLock, FaSmile, FaFilter } from 'react-icons/fa'
 import Product from '@/components/product/Product'
@@ -147,17 +148,54 @@ const DynamicPage = ({ products, category: apiCategory, error }) => {
   // Hata durumu
   if (error) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bir hata oluştu</h1>
-          <p className="text-gray-600">{error}</p>
+      <>
+        <Head>
+          <title>Bir Hata Oluştu | Çiçek Paketi</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Bir hata oluştu</h1>
+            <p className="text-gray-600">{error}</p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
+  // SEO için kapak resmi
+  const categoryImage = products && products.length > 0 && products[0].coverImage
+    ? `${process.env.NEXT_PUBLIC_API_URL}/${products[0].coverImage}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/images/default-category.jpg`
+
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      {/* SEO Meta Tags */}
+      <Head>
+        {/* Temel Meta Tags */}
+        <title>{pageTitle} | Çiçek Paketi</title>
+        <meta name="description" content={pageDescription} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={`${pageTitle} | Çiçek Paketi`} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={categoryImage} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_API_URL}/${slug?.join('/')}`} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${pageTitle} | Çiçek Paketi`} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={categoryImage} />
+        
+        {/* Kategori Bilgisi */}
+        {products && products.length > 0 && (
+          <meta property="product:count" content={products.length} />
+        )}
+      </Head>
+
+      <div className="min-h-screen bg-white">
       {/* Breadcrumb */}
       <div className="bg-white">
         <div className="max-w-[1650px] mx-auto px-4 md:px-6 py-6">
@@ -569,7 +607,7 @@ const DynamicPage = ({ products, category: apiCategory, error }) => {
               if (product.variants && product.variants.length > 0) {
                 const discountPrices = product.variants
                   .map(v => v.discount_price)
-                  .filter(price => price !== null && price !== undefined)
+                  .filter(price => price !== null && price !== undefined && price > 0)
                 
                 if (discountPrices.length > 0) {
                   minDiscountPrice = Math.min(...discountPrices)
@@ -585,11 +623,13 @@ const DynamicPage = ({ products, category: apiCategory, error }) => {
                   urun_aciklama={product.short_description}
                   minPrice={product.minPrice}
                   maxPrice={product.maxPrice}
-                  minDiscountPrice={minDiscountPrice || product.minPrice}
-                  maxDiscountPrice={maxDiscountPrice || product.maxPrice}
+                  minDiscountPrice={minDiscountPrice}
+                  maxDiscountPrice={maxDiscountPrice}
                   kapak={imageUrl}
                   url={productUrl}
                   tag={product.tags ? product.tags.split(',').map(t => t.trim()) : []}
+                  avgRating={product.avgRating || 0}
+                  reviewCount={product.reviewCount || 0}
                 />
               )
             })
@@ -600,7 +640,8 @@ const DynamicPage = ({ products, category: apiCategory, error }) => {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

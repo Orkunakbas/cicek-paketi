@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
+import Head from 'next/head'
 import Image from 'next/image'
-import { FaStar, FaHeart, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa'
+import { FaStar, FaStarHalfAlt, FaHeart, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa'
 import Product from '@/components/product/Product'
+import UrunDegerlendirmeleri from '@/components/urundegerlendirmeleri/UrunDegerlendirmeleri'
 import { addToCart, openCart, getCart } from '@/store/slices/cartSlice'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 import monsterra2Image from '@/images/urunler/monsterra-2.jpg'
 import monsterra3Image from '@/images/urunler/monsterra-3.jpg'
 
-const ProductDetail = ({ productData, similarProducts, error }) => {
+const ProductDetail = ({ productData, similarProducts, reviews, reviewStats, error }) => {
   const router = useRouter()
   const dispatch = useDispatch()
   const { slug } = router.query
@@ -24,24 +26,36 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
   // Hata durumu
   if (error) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bir hata oluştu</h1>
-          <p className="text-gray-600">{error}</p>
+      <>
+        <Head>
+          <title>Bir Hata Oluştu | Çiçek Paketi</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Bir hata oluştu</h1>
+            <p className="text-gray-600">{error}</p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   // Ürün verisi yoksa
   if (!productData) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ürün bulunamadı</h1>
-          <p className="text-gray-600">Aradığınız ürün mevcut değil.</p>
+      <>
+        <Head>
+          <title>Ürün Bulunamadı | Çiçek Paketi</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Ürün bulunamadı</h1>
+            <p className="text-gray-600">Aradığınız ürün mevcut değil.</p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
@@ -67,8 +81,8 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
     name: productData.name,
     price: price,
     discountedPrice: hasDiscount ? discountPrice : null,
-    rating: 4.8, // Şimdilik sabit, sonra API'den gelecek
-    reviewCount: 127, // Şimdilik sabit
+    rating: reviewStats?.averageRating || 0,
+    reviewCount: reviewStats?.totalReviews || 0,
     stock: variant.stock_quantity || 0,
     shippingDays: 2,
     images: productImages.length > 0 
@@ -172,9 +186,45 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Breadcrumb */}
-      <div className="bg-white">
+    <>
+      {/* SEO Meta Tags */}
+      <Head>
+        {/* Temel Meta Tags */}
+        <title>{product.name} | Çiçek Paketi</title>
+        <meta name="description" content={product.description || `${product.name} - Çiçek Paketi'nden online sipariş verin.`} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content={product.name} />
+        <meta property="og:description" content={product.description || `${product.name} - Çiçek Paketi'nden online sipariş verin.`} />
+        <meta property="og:image" content={product.images[0]} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_API_URL}/cicek/${slug}`} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={product.name} />
+        <meta name="twitter:description" content={product.description || `${product.name} - Çiçek Paketi'nden online sipariş verin.`} />
+        <meta name="twitter:image" content={product.images[0]} />
+        
+        {/* Fiyat Bilgisi */}
+        <meta property="product:price:amount" content={product.discountedPrice || product.price} />
+        <meta property="product:price:currency" content="TRY" />
+        
+        {/* Stok Durumu */}
+        <meta property="product:availability" content={product.stock > 0 ? "in stock" : "out of stock"} />
+        
+        {/* Rating */}
+        {product.reviewCount > 0 && (
+          <>
+            <meta property="product:rating:average" content={product.rating.toFixed(1)} />
+            <meta property="product:rating:count" content={product.reviewCount} />
+          </>
+        )}
+      </Head>
+
+      <div className="min-h-screen bg-white">
+        {/* Breadcrumb */}
+        <div className="bg-white">
         <div className="max-w-[1650px] mx-auto px-4 md:px-6 py-6">
           <nav className="flex items-center space-x-2 text-sm">
             <a href="/" className="text-gray-500 hover:text-[#eb1260]">Ana Sayfa</a>
@@ -258,22 +308,54 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 {product.name}
               </h1>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(product.rating)
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                  <span className="ml-2 text-gray-700 font-medium">{product.rating}</span>
+              {product.reviewCount > 0 ? (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => {
+                      const rating = product.rating;
+                      const fillPercentage = Math.max(0, Math.min(100, (rating - i) * 100));
+                      
+                      if (fillPercentage >= 100) {
+                        // Tam dolu yıldız
+                        return (
+                          <FaStar
+                            key={i}
+                            className="w-5 h-5 text-yellow-400 fill-current"
+                          />
+                        );
+                      } else if (fillPercentage > 0) {
+                        // Kısmi dolu yıldız - gradient ile
+                        return (
+                          <div key={i} className="relative w-5 h-5">
+                            <FaStar className="w-5 h-5 text-gray-300 fill-current absolute" />
+                            <div 
+                              className="overflow-hidden absolute top-0 left-0 h-full"
+                              style={{ width: `${fillPercentage}%` }}
+                            >
+                              <FaStar className="w-5 h-5 text-yellow-400 fill-current" />
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        // Boş yıldız
+                        return (
+                          <FaStar
+                            key={i}
+                            className="w-5 h-5 text-gray-300 fill-current"
+                          />
+                        );
+                      }
+                    })}
+                  </div>
+                  <span className="text-gray-700 font-medium">{product.rating.toFixed(1)}</span>
+                  <span className="text-gray-500">({product.reviewCount} değerlendirme)</span>
                 </div>
-                <span className="text-gray-500">({product.reviewCount} değerlendirme)</span>
-              </div>
+              ) : (
+                <div className="flex items-center gap-2 text-gray-500">
+                  <FaStar className="w-5 h-5 text-gray-300" />
+                  <span className="text-sm">Henüz değerlendirme yapılmamış</span>
+                </div>
+              )}
             </div>
 
             {/* Fiyat */}
@@ -407,7 +489,7 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
                 if (product.variants && product.variants.length > 0) {
                   const discountPrices = product.variants
                     .map(v => v.discount_price)
-                    .filter(price => price !== null && price !== undefined)
+                    .filter(price => price !== null && price !== undefined && price > 0)
                   
                   if (discountPrices.length > 0) {
                     minDiscountPrice = Math.min(...discountPrices)
@@ -434,6 +516,14 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
             </div>
           </div>
         )}
+
+        {/* Ürün Değerlendirmeleri */}
+        <UrunDegerlendirmeleri
+          reviews={reviews || []}
+          productId={productData.id}
+          averageRating={reviewStats?.averageRating || 0}
+          totalReviews={reviewStats?.totalReviews || 0}
+        />
       </div>
 
       {/* Scrollbar gizleme CSS */}
@@ -446,7 +536,8 @@ const ProductDetail = ({ productData, similarProducts, error }) => {
           scrollbar-width: none;
         }
       `}</style>
-    </div>
+      </div>
+    </>
   )
 }
 
@@ -471,6 +562,8 @@ export async function getServerSideProps(context) {
         props: {
           productData: null,
           similarProducts: [],
+          reviews: [],
+          reviewStats: null,
           error: 'Ürün detayları yüklenirken bir hata oluştu'
         }
       }
@@ -504,10 +597,50 @@ export async function getServerSideProps(context) {
       }
     }
 
+    // Ürün yorumlarını fetch et
+    let reviews = []
+    let reviewStats = null
+    if (data.data?.id) {
+      console.log('🔍 Fetching product reviews for product ID:', data.data.id)
+      
+      try {
+        const reviewsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/product/${data.data.id}`)
+        if (reviewsResponse.ok) {
+          const reviewsData = await reviewsResponse.json()
+          console.log('📦 Reviews Response:', JSON.stringify(reviewsData).substring(0, 200))
+          
+          // API response formatı: { success: true, data: { reviews: [...], stats: {...} } }
+          if (reviewsData.success && reviewsData.data) {
+            reviews = Array.isArray(reviewsData.data.reviews) ? reviewsData.data.reviews : []
+            
+            // Stats API'den geliyor
+            if (reviewsData.data.stats) {
+              const avgRating = parseFloat(reviewsData.data.stats.avgRating) || 0
+              const total = parseInt(reviewsData.data.stats.total) || 0
+              reviewStats = {
+                averageRating: avgRating,
+                totalReviews: total
+              }
+              console.log('📊 Parsed Stats - Average:', avgRating, 'Total:', total)
+            }
+          }
+          
+          console.log('✅ Product reviews fetched:', reviews.length)
+          if (reviewStats) {
+            console.log('📊 Review Stats:', reviewStats)
+          }
+        }
+      } catch (err) {
+        console.log('⚠️ Could not fetch product reviews:', err.message)
+      }
+    }
+
     return {
       props: {
         productData: data.data || null,
         similarProducts: similarProducts,
+        reviews: reviews,
+        reviewStats: reviewStats,
         error: null
       }
     }
@@ -517,6 +650,8 @@ export async function getServerSideProps(context) {
       props: {
         productData: null,
         similarProducts: [],
+        reviews: [],
+        reviewStats: null,
         error: 'Sunucu hatası oluştu'
       }
     }

@@ -28,8 +28,8 @@ const Adreslerim = () => {
     { icon: FaUser, label: 'Profilim', href: '/profil' },
     { icon: FaShoppingBag, label: 'Siparişlerim', href: '/siparislerim' },
     { icon: FaMapMarkerAlt, label: 'Adreslerim', href: '/adreslerim' },
+    { icon: FaStar, label: 'Değerlendirmelerim', href: '/degerlendirmeler' },
     { icon: FaHeart, label: 'Favorilerim', href: '/favorilerim' },
-    { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
   const isActive = (href) => router.pathname === href

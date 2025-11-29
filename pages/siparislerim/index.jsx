@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSession } from 'next-auth/react'
 import { getOrders } from '@/store/slices/orderSlice'
-import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaClock, FaMoneyBillWave } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaStar, FaBars, FaTimes, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaClock, FaMoneyBillWave } from 'react-icons/fa'
 import { GiFlowerPot } from 'react-icons/gi'
 import Image from 'next/image'
 import SiparisDetayModal from '@/components/siparis/SiparisDetayModal'
@@ -34,8 +34,8 @@ const Siparislerim = () => {
     { icon: FaUser, label: 'Profilim', href: '/profil' },
     { icon: FaShoppingBag, label: 'Siparişlerim', href: '/siparislerim' },
     { icon: FaMapMarkerAlt, label: 'Adreslerim', href: '/adreslerim' },
+    { icon: FaStar, label: 'Değerlendirmelerim', href: '/degerlendirmeler' },
     { icon: FaHeart, label: 'Favorilerim', href: '/favorilerim' },
-    { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
   const formatDate = (dateString) => {

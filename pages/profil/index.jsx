@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProfile, updateProfile, clearUpdateSuccess } from '@/store/slices/profilSlice'
-import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaStar, FaBars, FaTimes } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
 const Profil = () => {
@@ -89,8 +89,8 @@ const Profil = () => {
     { icon: FaUser, label: 'Profilim', href: '/profil' },
     { icon: FaShoppingBag, label: 'Siparişlerim', href: '/siparislerim' },
     { icon: FaMapMarkerAlt, label: 'Adreslerim', href: '/adreslerim' },
+    { icon: FaStar, label: 'Değerlendirmelerim', href: '/degerlendirmeler' },
     { icon: FaHeart, label: 'Favorilerim', href: '/favorilerim' },
-    { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
   const isActive = (href) => router.pathname === href

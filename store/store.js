@@ -7,6 +7,8 @@ import categoriesReducer from "./slices/categoriesSlice"
 import productsReducer from "./slices/productsSlice"
 import cartReducer from "./slices/cartSlice"
 import orderReducer from "./slices/orderSlice"
+import reviewReducer from "./slices/reviewSlice"
+import termsReducer from "./slices/termsSlice"
 
 export const store = configureStore({
   reducer: {
@@ -16,7 +18,9 @@ export const store = configureStore({
     categories: categoriesReducer,
     products: productsReducer,
     cart: cartReducer,
-    order: orderReducer
+    order: orderReducer,
+    review: reviewReducer,
+    terms: termsReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

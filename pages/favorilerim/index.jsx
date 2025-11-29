@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes, FaTrash } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHeart, FaCog, FaBars, FaTimes, FaTrash, FaStar } from 'react-icons/fa'
 import Product from '@/components/product/Product'
 import monsterraImage from '@/images/urunler/monsterra.jpg'
 
@@ -13,8 +13,8 @@ const Favoriler = () => {
     { icon: FaUser, label: 'Profilim', href: '/profil' },
     { icon: FaShoppingBag, label: 'Siparişlerim', href: '/siparislerim' },
     { icon: FaMapMarkerAlt, label: 'Adreslerim', href: '/adreslerim' },
+    { icon: FaStar, label: 'Değerlendirmelerim', href: '/degerlendirmeler' },
     { icon: FaHeart, label: 'Favorilerim', href: '/favorilerim' },
-    { icon: FaCog, label: 'Ayarlar', href: '/ayarlar' },
   ]
 
   const isActive = (href) => router.pathname === href
